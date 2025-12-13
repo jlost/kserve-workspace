@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Teardown E2E",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/teardown-e2e-setup.sh",
+            "args": ["kserve_on_openshift"],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "options": {
+                "shell": {
+                    "executable": "/bin/sh",
+                    "args": ["-c"]
+                },
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "$(trash) e2e teardown"
+                }
+            }
+        },
+        {
+            "label": "Setup E2E",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
+            "args": ["kserve_on_openshift"],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "options": {
+                "shell": {
+                    "executable": "/bin/sh",
+                    "args": ["-c"]
+                },
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "$(gear) e2e setup"
+                }
+            }
+        },
+        {
+            "label": "Recreate E2E ns",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh",
+            "args": ["kserve_on_openshift"],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "options": {
+                "shell": {
+                    "executable": "/bin/sh",
+                    "args": ["-c"]
+                },
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "$(refresh) e2e refresh"
+                }
+            },
+            "isBackground": false
+        }
+    ]
+}

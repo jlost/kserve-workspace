@@ -1,0 +1,161 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "devspace",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 2345,
+            "host": "localhost",
+            "trace": "verbose",
+            "substitutePath": [
+                {
+                    "from": "${workspaceFolder}",
+                    "to": "/app",
+                }
+            ],
+
+        },
+        {
+            "name": "E2E Test (S3 TLS Global Custom Cert)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "storagespec/test_s3_tls_storagespec.py::test_s3_tls_global_custom_cert_storagespec_kserve",
+                "-m",
+                "kserve_on_openshift",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KUBECONFIG": "${env:KUBECONFIG}",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Test (S3 TLS Custom Cert)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "storagespec/test_s3_tls_storagespec.py::test_s3_tls_custom_cert_storagespec_kserve",
+                "-m",
+                "kserve_on_openshift",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KUBECONFIG": "${env:KUBECONFIG}",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Test (S3 TLS Serving Cert)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "storagespec/test_s3_tls_storagespec.py::test_s3_tls_serving_cert_storagespec_kserve",
+                "-m",
+                "kserve_on_openshift",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KUBECONFIG": "${env:KUBECONFIG}",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Test (All S3 TLS Tests)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "storagespec/test_s3_tls_storagespec.py",
+                "-m",
+                "kserve_on_openshift",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KUBECONFIG": "${env:KUBECONFIG}",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Test (Custom)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${input:testPath}",
+                "-m",
+                "${input:marker}",
+                "--network-layer",
+                "${input:networkLayer}",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KUBECONFIG": "${env:KUBECONFIG}",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testPath",
+            "type": "promptString",
+            "description": "Test path (e.g., storagespec/test_s3_tls_storagespec.py::test_s3_tls_global_custom_cert_storagespec_kserve)",
+            "default": "storagespec/test_s3_tls_storagespec.py::test_s3_tls_global_custom_cert_storagespec_kserve"
+        },
+        {
+            "id": "marker",
+            "type": "promptString",
+            "description": "Pytest marker",
+            "default": "kserve_on_openshift"
+        },
+        {
+            "id": "networkLayer",
+            "type": "promptString",
+            "description": "Network layer (istio, istio-ingress, envoy-gatewayapi, istio-gatewayapi)",
+            "default": "istio"
+        }
+    ]
+}
