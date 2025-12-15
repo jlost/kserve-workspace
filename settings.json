@@ -1,43 +1,16 @@
 {
+    // Use zsh for task execution (sources .zshrc so PATH includes oc, etc.)
+    "terminal.integrated.automationProfile.linux": {
+        "path": "/usr/bin/zsh"
+    },
+
     // Python interpreter settings - automatically use the project venv
     "python.defaultInterpreterPath": "${workspaceFolder}/python/kserve/.venv/bin/python",
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
-    
-    // Terminal auto-activation for zsh
-    "terminal.integrated.profiles.linux": {
-        "zsh (venv auto-activate)": {
-            "path": "/usr/bin/zsh",
-            "args": [
-                "-c",
-                "export GITHUB_SHA=$(cd ${workspaceFolder} && git rev-parse HEAD 2>/dev/null || echo 'unknown') && source ${workspaceFolder}/.vscode/.venv-activate.sh && exec zsh"
-            ]
-        }
-    },
-    "terminal.integrated.defaultProfile.linux": "zsh (venv auto-activate)",
-    
-    // Python path settings
-    "cursorpyright.analysis.extraPaths": [
-        "${workspaceFolder}/python/kserve"
-    ],
-    "cursorpyright.analysis.typeCheckingMode": "standard",
-    "cursorpyright.analysis.autoImportCompletions": true,
-
-    // Auto-detect virtual environments
-    "python.venvPath": "${workspaceFolder}/python/kserve",
-    
-    // Terminal environment variables - always set these
-    "terminal.integrated.env.linux": {
-        "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}",
-        "VIRTUAL_ENV": "${workspaceFolder}/python/kserve/.venv",
-        "PATH": "${workspaceFolder}/python/kserve/.venv/bin:${env:PATH}"
-    },
-    
     // Python environment file - loaded by VS Code Python extension for all Python processes
     // This includes pytest discovery and execution, ensuring GITHUB_SHA is always available
     "python.envFile": "${workspaceFolder}/.vscode/.vscode.env",
-    
-    "flake8.importStrategy": "fromEnvironment",
     
     // Test discovery
     "python.testing.pytestEnabled": true,
@@ -47,6 +20,13 @@
         "-s"
     ],
     "python.testing.unittestEnabled": false,
+    "flake8.importStrategy": "fromEnvironment",
     
+    // Python path settings
+    "cursorpyright.analysis.extraPaths": [
+        "${workspaceFolder}/python/kserve"
+    ],
+    "cursorpyright.analysis.typeCheckingMode": "standard",
+    "cursorpyright.analysis.autoImportCompletions": true,
 }
 

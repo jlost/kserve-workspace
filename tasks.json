@@ -5,23 +5,26 @@
             "label": "Teardown E2E",
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/teardown-e2e-setup.sh",
-            "args": ["kserve_on_openshift"],
+            "args": ["${input:marker}"],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
                 "panel": "new",
                 "close": false
             },
+            "icon": {
+                "id": "trash"
+            },
             "options": {
                 "shell": {
-                    "executable": "/bin/sh",
+                    "executable": "/usr/bin/zsh",
                     "args": ["-c"]
                 },
                 "env": {
                     "KUBECONFIG": "${env:KUBECONFIG}"
                 },
                 "statusbar": {
-                    "label": "$(trash) e2e teardown"
+                    "label": "e2e teardown"
                 }
             }
         },
@@ -29,23 +32,26 @@
             "label": "Setup E2E",
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
-            "args": ["kserve_on_openshift"],
+            "args": ["${input:marker}"],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
                 "panel": "new",
                 "close": false
             },
+            "icon": {
+                "id": "gear"
+            },
             "options": {
                 "shell": {
-                    "executable": "/bin/sh",
+                    "executable": "/usr/bin/zsh",
                     "args": ["-c"]
                 },
                 "env": {
                     "KUBECONFIG": "${env:KUBECONFIG}"
                 },
                 "statusbar": {
-                    "label": "$(gear) e2e setup"
+                    "label": "e2e setup"
                 }
             }
         },
@@ -53,26 +59,79 @@
             "label": "Recreate E2E ns",
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh",
-            "args": ["kserve_on_openshift"],
+            "args": ["${input:marker}"],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
                 "panel": "new",
                 "close": false
             },
+            "icon": {
+                "id": "refresh"
+            },
             "options": {
                 "shell": {
-                    "executable": "/bin/sh",
+                    "executable": "/usr/bin/zsh",
                     "args": ["-c"]
                 },
                 "env": {
                     "KUBECONFIG": "${env:KUBECONFIG}"
                 },
                 "statusbar": {
-                    "label": "$(refresh) e2e refresh"
+                    "label": "e2e refresh"
                 }
             },
             "isBackground": false
+        },
+        {
+            "label": "Devspace Dev",
+            "type": "shell",
+            "command": "devspace",
+            "args": ["dev", "--namespace", "${input:devspaceNamespace}"],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "devspace \\./app"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "coffee",
+                "color": "terminal.ansiGreen"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode",
+
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "devspace dev"
+                }
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "devspaceNamespace",
+            "type": "promptString",
+            "description": "Namespace for devspace dev",
+            "default": "kserve"
+        },
+        {
+            "id": "marker",
+            "type": "promptString",
+            "description": "Pytest marker for E2E tests",
+            "default": "kserve_on_openshift"
         }
     ]
 }

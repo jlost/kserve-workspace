@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "ms-python.black-formatter",
+    "ms-python.flake8"
+  ]
+}
+
