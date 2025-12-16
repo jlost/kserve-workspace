@@ -1,8 +1,14 @@
 {
   "recommendations": [
+    "ms-python.python",
+    "ms-python.debugpy",
+    "anysphere.cursorpyright",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
     "ms-python.black-formatter",
-    "ms-python.flake8"
+    "ms-python.flake8",
+    "golang.go",
+    "redhat.vscode-yaml",
+    "actboy168.tasks"
   ]
 }
 

@@ -118,6 +118,128 @@
                     "label": "devspace dev"
                 }
             }
+        },
+        {
+            "label": "CRC Refresh",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/crc-refresh.sh",
+            "args": [],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "^Ready!$"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true,
+                "close": false
+            },
+            "icon": {
+                "id": "vm",
+                "color": "terminal.ansiRed"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode",
+                "statusbar": {
+                    "label": "crc refresh"
+                }
+            }
+        },
+        {
+            "label": "Pull Secret",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/pull_secret.sh",
+            "args": [],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "^--- Success ---$"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "key",
+                "color": "terminal.ansiYellow"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode",
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "pull secret"
+                }
+            }
+        },
+        {
+            "label": "Install ODH Operator",
+            "type": "shell",
+            "command": "ODH_VERSION='${input:odhVersion}' envsubst < ${workspaceFolder}/.vscode/opendatahub-subscription.yaml.tmpl | oc apply -f -",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "cloud-download",
+                "color": "terminal.ansiBlue"
+            },
+            "options": {
+                "shell": {
+                    "executable": "/usr/bin/zsh",
+                    "args": ["-c"]
+                },
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "install odh"
+                }
+            }
+        },
+        {
+            "label": "Open OpenShift Console",
+            "type": "shell",
+            "command": "brave-browser $(oc whoami --show-console)",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "globe",
+                "color": "terminal.ansiRed"
+            },
+            "options": {
+                "shell": {
+                    "executable": "/usr/bin/zsh",
+                    "args": ["-c"]
+                },
+                "env": {
+                    "KUBECONFIG": "${env:KUBECONFIG}"
+                },
+                "statusbar": {
+                    "label": "oc console"
+                }
+            }
         }
     ],
     "inputs": [
@@ -132,6 +254,12 @@
             "type": "promptString",
             "description": "Pytest marker for E2E tests",
             "default": "kserve_on_openshift"
+        },
+        {
+            "id": "odhVersion",
+            "type": "promptString",
+            "description": "OpenDataHub operator version (e.g., 3.1.0)",
+            "default": "3.1.0"
         }
     ]
 }
