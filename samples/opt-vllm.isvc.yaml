@@ -1,0 +1,25 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: opt-huggingfaceserver-cpu
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: huggingface
+      args:
+        - --model_name=opt-125m
+      storageUri: hf://facebook/opt-125m
+      resources:
+        limits:
+          cpu: "1"
+          memory: 2Gi
+        requests:
+          cpu: "500m"
+          memory: 1Gi
+    podSpec:
+      containers:
+        - name: storage-initializer
+          env:
+            - name: HF_HOME
+              value: "/tmp/hf_home"

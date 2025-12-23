@@ -1,0 +1,32 @@
+apiVersion: dscinitialization.opendatahub.io/v1
+kind: DSCInitialization
+metadata:
+  name: default-dsci
+  labels:
+    app.kubernetes.io/name: dscinitialization
+spec:
+  applicationsNamespace: opendatahub
+  monitoring:
+    managementState: Removed
+    metrics:
+      resources:
+        cpulimit: 500m
+        cpurequest: 100m
+        memorylimit: 512Mi
+        memoryrequest: 256Mi
+      storage:
+        retention: 90d
+        size: 5Gi
+    namespace: opendatahub
+    traces:
+      sampleRatio: "0.1"
+      storage:
+        backend: pv
+        retention: 2160h0m0s
+      tls:
+        enabled: true
+  trustedCABundle:
+    customCABundle: ""
+    managementState: Managed
+
+

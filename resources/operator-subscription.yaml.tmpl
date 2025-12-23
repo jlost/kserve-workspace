@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ${OPERATOR_NAME}
+  namespace: openshift-operators
+spec:
+  channel: ${OPERATOR_CHANNEL}
+  name: ${OPERATOR_NAME}
+  source: ${OPERATOR_SOURCE}
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Manual
+  startingCSV: ${OPERATOR_NAME}.${CSV_VERSION}
+

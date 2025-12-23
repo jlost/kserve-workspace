@@ -1,16 +1,8 @@
 {
-    // Use zsh for task execution (sources .zshrc so PATH includes oc, etc.)
-    "terminal.integrated.automationProfile.linux": {
-        "path": "/usr/bin/zsh"
-    },
-
     // Python interpreter settings - automatically use the project venv
     "python.defaultInterpreterPath": "${workspaceFolder}/python/kserve/.venv/bin/python",
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
-    // Python environment file - loaded by VS Code Python extension for all Python processes
-    // This includes pytest discovery and execution, ensuring GITHUB_SHA is always available
-    "python.envFile": "${workspaceFolder}/.vscode/.vscode.env",
     
     // Test discovery
     "python.testing.pytestEnabled": true,
@@ -21,6 +13,7 @@
     ],
     "python.testing.unittestEnabled": false,
     "flake8.importStrategy": "fromEnvironment",
+    "black-formatter.importStrategy": "fromEnvironment",
     
     // Python path settings
     "cursorpyright.analysis.extraPaths": [

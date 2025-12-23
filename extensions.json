@@ -8,7 +8,8 @@
     "ms-python.flake8",
     "golang.go",
     "redhat.vscode-yaml",
-    "actboy168.tasks"
+    "actboy168.tasks",
+    "timonwong.shellcheck"
   ]
 }
 

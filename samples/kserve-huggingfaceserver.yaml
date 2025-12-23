@@ -1,0 +1,81 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: kserve-huggingfaceserver
+  annotations:
+    description: HuggingFace ServingRuntime for KServe
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/model-type: '["generative"]'
+    opendatahub.io/modelServingSupport: '["single"]'
+    openshift.io/display-name: HuggingFace ServingRuntime for KServe
+    openshift.io/provider-display-name: Red Hat, Inc.
+    tags: rhods,rhoai,kserve,servingruntime
+    template.openshift.io/documentation-url: https://github.com/kserve/kserve/tree/master/python/huggingfaceserver
+    template.openshift.io/long-description: This template defines resources needed to deploy HuggingFace ServingRuntime with KServe in Red Hat OpenShift AI
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/ootb: "true"
+parameters:
+  - name: NAME
+    description: Name of the ServingRuntime
+    value: kserve-huggingfaceserver
+objects:
+  - apiVersion: serving.kserve.io/v1alpha1
+    kind: ServingRuntime
+    metadata:
+      name: ${NAME}
+      annotations:
+        opendatahub.io/runtime-version: v0.16.0
+        openshift.io/display-name: HuggingFace ServingRuntime for KServe
+      labels:
+        opendatahub.io/dashboard: "true"
+    spec:
+      annotations:
+        prometheus.kserve.io/path: /metrics
+        prometheus.kserve.io/port: "8080"
+      # multiModel: false
+      supportedModelFormats:
+        # - name: huggingface
+        #   version: "1"
+        #   autoSelect: true
+        #   priority: 1
+        - name: vLLM
+          autoSelect: true
+      protocolVersions:
+        - v2
+        - v1
+      containers:
+        - name: kserve-container
+          image: kserve/huggingfaceserver:v0.16.0
+          args:
+            - --model_name={{.Name}}
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          env:
+            - name: LMCACHE_USE_EXPERIMENTAL
+              value: "True"
+            - name: HF_HOME
+              value: /tmp/hf_home
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "500m"
+              memory: 1Gi
+          volumeMounts:
+            - name: devshm
+              mountPath: /dev/shm
+      volumes:
+        - name: devshm
+          emptyDir:
+            medium: Memory
+      hostIPC: false

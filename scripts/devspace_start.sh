@@ -3,7 +3,6 @@ set +e  # Continue on errors
 
 cd cmd/manager
 go get
-go install github.com/go-delve/delve/cmd/dlv@latest
 
 COLOR_BLUE="\033[0;94m"
 COLOR_GREEN="\033[0;92m"

@@ -25,47 +25,37 @@ images:
     dockerfile: ./Containerfile
 
 # deployments:
-  # app:
-    # kubectl:
-    #   manifests:
-    #     - ../config/manager
-    #   kustomize: true
-
-vars:
-  GOCACHE:
-    source: env
-    default: /tmp/.cache
-  GOPROXY:
-    source: env
-    default: https://proxy.golang.org,direct
+#   app:
+#     kubectl:
+#       manifests:
+#         - ../config/manager
+#       kustomize: true
 
 dev:
   app:
-    # namespace: redhat-ods-applications
-    # namespace: opendatahub
-    namespace: kserve
-    workingDir: /go/src/app
+    namespace: opendatahub
+    workingDir: /app
     labelSelector:
       control-plane: kserve-controller-manager
-    devImage: golang:1.25
-    persistPaths:
-      - path: /go/src/app
+    devImage: quay.io/jostrandquay/kserve-dev:latest
     env:
       - name: GOCACHE
         value: /tmp/.cache/go-build
       - name: GOMODCACHE
         value: /tmp/.cache/go-mod
-      - name: GOPROXY
-        value: https://proxy.golang.org,direct
       - name: GOFLAGS
         value: -buildvcs=false
     sync:
-      - path: ../:/go/src/app
+      - path: ../:/app
         excludePaths:
+          - bin/
           - .git/
           - .devspace/
+          - vendor/
+          - python/
+          - "*.out"
     terminal:
-      command: dev_tools/devspace_start.sh
+      command: .vscode/devspace_start.sh
     ssh:
       enabled: true
     ports:
@@ -79,16 +69,19 @@ dev:
         memory: 4Gi
     patches:
       - op: replace
+        path: spec.securityContext.runAsNonRoot
+        value: false
+      - op: replace
         path: spec.containers[0].securityContext.readOnlyRootFilesystem
         value: false
 
-commands:
+commands: {}
   # migrate-db:
   #   command: |-
   #     echo 'This is a cross-platform, shared command that can be used to codify any kind of dev task.'
   #     echo 'Anyone using this project can invoke it via "devspace run migrate-db"'
 
-profiles:
+profiles: []
   # - name: go1.22 
   #   patches: # Use patches to modify the base configuration
   #     - op: replace

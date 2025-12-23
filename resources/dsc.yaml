@@ -1,0 +1,47 @@
+apiVersion: datasciencecluster.opendatahub.io/v1
+kind: DataScienceCluster
+metadata:
+  name: default-dsc
+  labels:
+    app.kubernetes.io/name: datasciencecluster
+spec:
+  components:
+    codeflare: {}
+    dashboard:
+      managementState: Managed
+    datasciencepipelines:
+      argoWorkflowsControllers:
+        managementState: Managed
+      managementState: Removed
+    feastoperator:
+      managementState: Removed
+    kserve:
+      managementState: Managed
+      nim:
+        managementState: Managed
+      rawDeploymentServiceConfig: Headed
+    kueue:
+      defaultClusterQueueName: default
+      defaultLocalQueueName: default
+      managementState: Removed
+    llamastackoperator:
+      managementState: Removed
+    modelmeshserving: {}
+    modelregistry:
+      managementState: Removed
+      registriesNamespace: odh-model-registries
+    ray:
+      managementState: Removed
+    trainingoperator:
+      managementState: Removed
+    trustyai:
+      eval:
+        lmeval:
+          permitCodeExecution: deny
+          permitOnline: deny
+      managementState: Removed
+    workbenches:
+      managementState: Removed
+      workbenchNamespace: opendatahub
+
+
