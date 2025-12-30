@@ -23,9 +23,10 @@ A batteries-included development environment for KServe on OpenShift. Clone, ins
 
 ## Prereqs
 
-Install all tools required for development. Make sure they are available in your PATH including for non-interactive shells (i.e. add bin dirs to `~/.zshenv`).
+The following tools and environment variables are required for development. All tools must be available in your PATH including for non-interactive shells (i.e. add bin dirs to `~/.zshenv`, `~/.bashrc`, or `~/.profile` depending on your shell).
 
-Non-exhaustive list of tools:
+### Required Tools
+
 * Cursor or VS Code
 * oc
 * kubectl
@@ -43,7 +44,10 @@ Non-exhaustive list of tools:
 * ko
 * A web browser (set `$BROWSER`, defaults to `brave-browser`)
 
-The following variables must be available in your env for non-interactive shells (i.e. `~/.zshenv` or `~/.profile`):
+### Required Environment Variables
+
+The following variables must be available in your env for non-interactive shells:
+
 ```sh
 QUAY_USERNAME=yourname
 QUAY_PASSWORD=abcdefg
@@ -57,39 +61,85 @@ HF_TOKEN=hf_abcdefg  # HuggingFace token for private model access
 BROWSER=firefox  # optional, defaults to brave-browser
 ```
 
-Use `podman login` to log in to docker and quay. Afterward, your credentials should be stored in `~/.config/containers/auth.json`:
-```json
-{
-    "auths": {
-        "docker.io": {
-            "auth": "abcdefg"
-        },
-        "quay.io": {
-            "auth": "abcdefg"
-        }
-    }
-}
-```
-
 ## Setup
 
-1. Clone this repository into your kserve repository at the root, named as .vscode:
-    ```sh
-    cd kserve
-    git clone git@github.com:jlost/kserve-workspace.git .vscode
-    ```
-    You should now have a .vscode directory at the root of the kserve repository.
-2. Make sure the python venv is set up:
-    ```sh
-    cd python/kserve
-    uv sync --group test --group dev
-    ```
-3. Start vs code
-    ```sh
-    cd ../..
-    code .
-    ```
-4. Once VS Code has loaded, press `F1` and type **'show recommended extensions'**. Press `ENTER`. Install all of the workspace recommendations.
+### 1. Clone Workspace Configuration
+
+Clone this repository into your kserve repository at the root, named as `.vscode`:
+
+```sh
+cd kserve
+git clone git@github.com:jlost/kserve-workspace.git .vscode
+```
+
+You should now have a `.vscode` directory at the root of the kserve repository.
+
+### 2. Install Development Tools
+
+#### Automated Setup (Fedora Only)
+
+For Fedora users, automated setup scripts are available in `.vscode/`:
+
+**Note**: These scripts are Fedora-specific and assume zsh as your default shell. If you prefer a different shell or have already set up tools manually, use [Manual Setup](#manual-setup) instead.
+
+1. **Install Development Dependencies**:
+   ```sh
+   ./.vscode/install-fedora-deps.sh
+   ```
+
+2. **Configure Environment Variables**:
+   ```sh
+   ./.vscode/setup-env.sh
+   ```
+
+#### Manual Setup
+
+1. Install the required tools using your system's package manager or preferred installation method.
+
+2. Configure environment variables by adding them to your shell's configuration file (`~/.zshenv`, `~/.bashrc`, or `~/.profile` depending on your shell).
+
+### 3. Log in to Container Registries
+
+Use `podman login` to log in to docker and quay:
+
+```sh
+podman login docker.io
+podman login quay.io
+```
+
+Your credentials will be stored in `~/.config/containers/auth.json`:
+   ```json
+   {
+       "auths": {
+           "docker.io": {
+               "auth": "abcdefg"
+           },
+           "quay.io": {
+               "auth": "abcdefg"
+           }
+       }
+   }
+   ```
+
+### 4. Set Up Python Environment
+
+Make sure the python venv is set up:
+
+```sh
+cd python/kserve
+uv sync --group test --group dev
+```
+
+### 5. Start VS Code and Install Extensions
+
+Start VS Code:
+
+```sh
+cd ../..
+code .
+```
+
+Once VS Code has loaded, press `F1` and type **'show recommended extensions'**. Press `ENTER`. Install all of the workspace recommendations.
 
 ## FAQ
 
