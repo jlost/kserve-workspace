@@ -33,7 +33,6 @@ images:
 
 dev:
   app:
-    namespace: opendatahub
     workingDir: /app
     labelSelector:
       control-plane: kserve-controller-manager
@@ -55,7 +54,7 @@ dev:
           - python/
           - "*.out"
     terminal:
-      command: .vscode/devspace_start.sh
+      command: .vscode/scripts/devspace_start.sh
     ssh:
       enabled: true
     ports:
