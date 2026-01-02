@@ -36,6 +36,7 @@ dev:
     workingDir: /app
     labelSelector:
       control-plane: kserve-controller-manager
+    container: manager
     devImage: quay.io/jostrandquay/kserve-dev:latest
     env:
       - name: GOCACHE
@@ -69,6 +70,9 @@ dev:
     patches:
       - op: replace
         path: spec.securityContext.runAsNonRoot
+        value: false
+      - op: replace
+        path: spec.containers[0].securityContext.runAsNonRoot
         value: false
       - op: replace
         path: spec.containers[0].securityContext.readOnlyRootFilesystem

@@ -18,102 +18,6 @@
 
         },
         {
-            "name": "E2E Test (S3 TLS Global Custom Cert)",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "storagespec/test_s3_tls_storagespec.py::test_s3_tls_global_custom_cert_storagespec_kserve",
-                "-m",
-                "kserve_on_openshift",
-                "--network-layer",
-                "istio",
-                "-v",
-                "-s",
-                "--log-cli-level=INFO"
-            ],
-            "cwd": "${workspaceFolder}/test/e2e",
-            "env": {
-                "KUBECONFIG": "${env:KUBECONFIG}",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
-            },
-            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "E2E Test (S3 TLS Custom Cert)",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "storagespec/test_s3_tls_storagespec.py::test_s3_tls_custom_cert_storagespec_kserve",
-                "-m",
-                "kserve_on_openshift",
-                "--network-layer",
-                "istio",
-                "-v",
-                "-s",
-                "--log-cli-level=INFO"
-            ],
-            "cwd": "${workspaceFolder}/test/e2e",
-            "env": {
-                "KUBECONFIG": "${env:KUBECONFIG}",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
-            },
-            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "E2E Test (S3 TLS Serving Cert)",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "storagespec/test_s3_tls_storagespec.py::test_s3_tls_serving_cert_storagespec_kserve",
-                "-m",
-                "kserve_on_openshift",
-                "--network-layer",
-                "istio",
-                "-v",
-                "-s",
-                "--log-cli-level=INFO"
-            ],
-            "cwd": "${workspaceFolder}/test/e2e",
-            "env": {
-                "KUBECONFIG": "${env:KUBECONFIG}",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
-            },
-            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "E2E Test (All S3 TLS Tests)",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "storagespec/test_s3_tls_storagespec.py",
-                "-m",
-                "kserve_on_openshift",
-                "--network-layer",
-                "istio",
-                "-v",
-                "-s",
-                "--log-cli-level=INFO"
-            ],
-            "cwd": "${workspaceFolder}/test/e2e",
-            "env": {
-                "KUBECONFIG": "${env:KUBECONFIG}",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
-            },
-            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
             "name": "E2E Test (Custom)",
             "type": "debugpy",
             "request": "launch",
@@ -130,7 +34,121 @@
             ],
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
-                "KUBECONFIG": "${env:KUBECONFIG}",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Test (Kind)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "preLaunchTask": "Setup E2E + Port Forward (Kind)",
+            "args": [
+                "${input:testPath}",
+                "-m",
+                "${input:marker}",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KSERVE_INGRESS_HOST_PORT": "localhost:8080",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}",
+                "--network-layer",
+                "${input:networkLayer}",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Marker",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-m",
+                "${input:marker}",
+                "--network-layer",
+                "${input:networkLayer}",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Current File (Kind)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "preLaunchTask": "Setup E2E + Port Forward (Kind)",
+            "args": [
+                "${file}",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KSERVE_INGRESS_HOST_PORT": "localhost:8080",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Marker (Kind)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "preLaunchTask": "Setup E2E + Port Forward (Kind)",
+            "args": [
+                "-m",
+                "${input:marker}",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KSERVE_INGRESS_HOST_PORT": "localhost:8080",
                 "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
@@ -142,19 +160,35 @@
         {
             "id": "testPath",
             "type": "promptString",
-            "description": "Test path (e.g., storagespec/test_s3_tls_storagespec.py::test_s3_tls_global_custom_cert_storagespec_kserve)",
-            "default": "storagespec/test_s3_tls_storagespec.py::test_s3_tls_global_custom_cert_storagespec_kserve"
+            "description": "Test path (e.g., predictor/test_sklearn.py::test_sklearn_kserve)",
+            "default": "predictor/test_sklearn.py::test_sklearn_kserve"
         },
         {
             "id": "marker",
-            "type": "promptString",
+            "type": "pickString",
             "description": "Pytest marker",
-            "default": "kserve_on_openshift"
+            "options": [
+                "predictor",
+                "kserve_on_openshift",
+                "graph",
+                "path_based_routing",
+                "batcher",
+                "explainer",
+                "transformer",
+                "",
+            ],
+            "default": "predictor"
         },
         {
             "id": "networkLayer",
-            "type": "promptString",
-            "description": "Network layer (istio, istio-ingress, envoy-gatewayapi, istio-gatewayapi)",
+            "type": "pickString",
+            "description": "Network layer",
+            "options": [
+                "istio",
+                "istio-ingress",
+                "envoy-gatewayapi",
+                "istio-gatewayapi"
+            ],
             "default": "istio"
         }
     ]

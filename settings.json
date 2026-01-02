@@ -17,7 +17,8 @@
     
     // Python path settings
     "cursorpyright.analysis.extraPaths": [
-        "${workspaceFolder}/python/kserve"
+        "${workspaceFolder}/python/kserve",
+        "${workspaceFolder}/hack/setup/scripts/install-script-generator"
     ],
     "cursorpyright.analysis.typeCheckingMode": "standard",
     "cursorpyright.analysis.autoImportCompletions": true,

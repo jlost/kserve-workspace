@@ -121,6 +121,15 @@ Your credentials will be stored in `~/.config/containers/auth.json`:
    }
    ```
 
+Some tools (e.g., `ko`) expect Docker's config at `~/.docker/config.json`. Since both files use the same format, create a symlink using an absolute path:
+
+```sh
+mkdir -p ~/.docker
+ln -s "$HOME/.config/containers/auth.json" ~/.docker/config.json
+```
+
+**Note:** The symlink target must be an absolute path. Verify with `ls -la ~/.docker/config.json` - it should show the full path (e.g., `/home/user/.config/containers/auth.json`), not a relative path.
+
 ### 4. Set Up Python Environment
 
 Make sure the python venv is set up:

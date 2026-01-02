@@ -162,15 +162,14 @@ install_via_curl_sh() {
 
 # Install kubectl
 log_info "=== Installing kubectl ==="
-# kubectl is in official repos but requires version specification
-# Try to install from official repos first (will fail gracefully if not available)
-if sudo dnf -y install kubectl 2>/dev/null; then
+if command -v kubectl &> /dev/null; then
+    log_info "kubectl already installed"
+elif sudo dnf -y install kubectl 2>/dev/null; then
     log_info "Installed kubectl from official DNF repository"
 elif sudo dnf -y install kubernetes-client 2>/dev/null; then
     log_info "Installed kubectl (kubernetes-client) from official DNF repository"
 else
     log_info "kubectl not in official repos, adding Kubernetes repository..."
-    # Add Kubernetes official repository (idempotent - overwrites if exists)
     if [[ ! -f /etc/yum.repos.d/kubernetes.repo ]]; then
         sudo rpm --import https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key || true
         sudo tee /etc/yum.repos.d/kubernetes.repo > /dev/null <<EOF
@@ -267,6 +266,29 @@ install_from_dnf "openssl"
 # Install podman
 log_info "=== Installing podman ==="
 install_from_dnf "podman"
+
+# Install kind (Kubernetes in Docker) - pulls in moby-engine as dependency
+log_info "=== Installing kind ==="
+install_from_dnf "kind"
+
+# Enable and start Docker service (installed as kind dependency)
+log_info "=== Enabling and starting Docker service ==="
+if systemctl is-active --quiet docker; then
+    log_info "Docker service is already running"
+else
+    sudo systemctl enable docker
+    sudo systemctl start docker
+    log_info "Docker service enabled and started"
+fi
+
+# Add user to docker group (to run docker without sudo)
+if ! groups "$CURRENT_USER" | grep -q docker; then
+    log_info "Adding $CURRENT_USER to docker group..."
+    sudo usermod -aG docker "$CURRENT_USER"
+    log_warn "You may need to log out and back in for docker group membership to take effect"
+else
+    log_info "User $CURRENT_USER is already in docker group"
+fi
 
 # Install yq
 log_info "=== Installing yq ==="
@@ -368,5 +390,9 @@ fi
 log_info "=== Installation complete! ==="
 log_info "Please restart your shell or run: source $SHELL_CONFIG"
 log_info "To verify installations, check that all tools are in your PATH:"
-log_info "  cursor, oc, kubectl, crc, go, dlv, python3.11, uv, openssl, podman, yq, jq, envsubst, devspace, ko, brave-browser"
+log_info "  cursor, oc, kubectl, crc, go, dlv, python3.11, uv, openssl, podman, docker, kind, yq, jq, envsubst, devspace, ko, brave-browser"
+log_info ""
+log_info "Note: You may need to log out and back in for:"
+log_info "  - zsh to become your default shell"
+log_info "  - docker group membership to take effect (run docker without sudo)"
 

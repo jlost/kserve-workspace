@@ -1,11 +1,13 @@
 {
     "version": "2.0.0",
     "tasks": [
+        // ============================================================
+        // KIND / UPSTREAM (warning background - yellow)
+        // ============================================================
         {
-            "label": "Teardown E2E",
+            "label": "Kind Refresh",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/teardown-e2e-setup.sh",
-            "args": ["${input:marker}"],
+            "command": "${workspaceFolder}/.vscode/scripts/kind-refresh.sh",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -13,22 +15,30 @@
                 "close": false
             },
             "icon": {
-                "id": "trash"
+                "id": "server-environment",
+                "color": "terminal.ansiBlack"
             },
             "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
                 "statusbar": {
-                    "label": "e2e teardown"
+                    "label": "kind",
+                    "detail": "Delete and recreate Kind cluster",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiBlack",
+                    "running": {
+                        "color": "terminal.ansiBlue"
+                    }
                 }
             }
         },
         {
-            "label": "Setup E2E",
+            "label": "Install KServe Dependencies",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
-            "args": ["${input:marker}"],
+            "command": "${workspaceFolder}/hack/quick_install.sh",
+            "args": [
+                "-d",
+                "${input:deploymentMode}",
+                "${input:installKeda}"
+            ],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -36,22 +46,25 @@
                 "close": false
             },
             "icon": {
-                "id": "gear"
+                "id": "package",
+                "color": "terminal.ansiBlue"
             },
             "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
                 "statusbar": {
-                    "label": "e2e setup"
+                    "label": "deps",
+                    "detail": "Install KServe dependencies (Istio, cert-manager, etc.)",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiBlue",
+                    "running": {
+                        "color": "terminal.ansiBlack"
+                    }
                 }
             }
         },
         {
-            "label": "Recreate E2E ns",
+            "label": "Clean Deploy KServe",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh",
-            "args": ["${input:marker}"],
+            "command": "make undeploy-dev; make deploy-dev",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -59,23 +72,73 @@
                 "close": false
             },
             "icon": {
-                "id": "refresh"
+                "id": "rocket",
+                "color": "terminal.ansiGreen"
             },
             "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
+                "cwd": "${workspaceFolder}",
                 "statusbar": {
-                    "label": "e2e refresh"
+                    "label": "deploy",
+                    "detail": "Undeploy and redeploy KServe controller",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiGreen",
+                    "running": {
+                        "color": "terminal.ansiBlack"
+                    }
                 }
-            },
-            "isBackground": false
+            }
         },
         {
-            "label": "Devspace Dev",
+            "label": "Patch Deployment Mode",
             "type": "shell",
-            "command": "devspace",
-            "args": ["dev", "--namespace", "${input:devspaceNamespace}", "--kube-context", "${input:devspaceKubecontext}"],
+            "command": "MODE='${input:deploymentModeOverride}'; if [ -z \"$MODE\" ]; then if kubectl get knativeserving knative-serving -n knative-serving &>/dev/null; then MODE=Knative; else MODE=Standard; fi; echo \"Auto-detected mode: $MODE\"; else echo \"Using specified mode: $MODE\"; fi; kubectl patch configmap inferenceservice-config -n kserve --type=merge -p \"{\\\"data\\\":{\\\"deploy\\\":\\\"{\\\\\\\"defaultDeploymentMode\\\\\\\": \\\\\\\"$MODE\\\\\\\"}\\\"}}\"",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "settings-gear",
+                "color": "terminal.ansiYellow"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "mode",
+                    "detail": "Patch defaultDeploymentMode based on Knative availability",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiYellow"
+                }
+            }
+        },
+        {
+            "label": "Recreate E2E ns (upstream)",
+            "type": "shell",
+            "command": "kubectl delete namespace kserve-ci-e2e-test --ignore-not-found && kubectl create namespace kserve-ci-e2e-test",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "refresh",
+                "color": "terminal.ansiCyan"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "e2e ns",
+                    "detail": "Delete and recreate E2E namespace for Kind cluster",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiCyan",
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "Setup E2E + Port Forward (Kind)",
+            "type": "shell",
+            "command": "kubectl create namespace kserve-ci-e2e-test --dry-run=client -o yaml | kubectl apply -f - && kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80",
             "isBackground": true,
             "problemMatcher": {
                 "pattern": {
@@ -83,30 +146,35 @@
                 },
                 "background": {
                     "activeOnStart": true,
-                    "beginsPattern": ".",
-                    "endsPattern": "devspace \\./app"
+                    "beginsPattern": "^namespace/",
+                    "endsPattern": "^Forwarding from"
                 }
             },
             "presentation": {
                 "reveal": "always",
-                "panel": "new",
+                "panel": "dedicated",
                 "close": false
             },
             "icon": {
-                "id": "coffee",
+                "id": "play",
                 "color": "terminal.ansiGreen"
             },
             "options": {
-                "cwd": "${workspaceFolder}/.vscode",
-
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
                 "statusbar": {
-                    "label": "devspace dev"
+                    "label": "e2e+fwd",
+                    "detail": "Create E2E namespace and start port forward to Istio gateway",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiGreen",
+                    "hide": true,
+                    "running": {
+                        "color": "terminal.ansiBlack"
+                    }
                 }
             }
         },
+        // ============================================================
+        // OPENSHIFT (error background - red)
+        // ============================================================
         {
             "label": "CRC Refresh",
             "type": "shell",
@@ -131,12 +199,18 @@
             },
             "icon": {
                 "id": "vm",
-                "color": "terminal.ansiRed"
+                "color": "terminal.ansiWhite"
             },
             "options": {
                 "cwd": "${workspaceFolder}/.vscode/scripts",
                 "statusbar": {
-                    "label": "crc refresh"
+                    "label": "crc",
+                    "detail": "Start or refresh CRC OpenShift cluster",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiWhite",
+                    "running": {
+                        "color": "terminal.ansiYellow"
+                    }
                 }
             }
         },
@@ -167,11 +241,14 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}/.vscode/scripts",
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
                 "statusbar": {
-                    "label": "pull secret"
+                    "label": "pull secret",
+                    "detail": "Configure Red Hat registry pull secret",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiYellow",
+                    "running": {
+                        "color": "terminal.ansiWhite"
+                    }
                 }
             }
         },
@@ -179,7 +256,10 @@
             "label": "Install ODH/RHOAI Operator",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/install-odh-operator.sh",
-            "args": ["${input:operatorType}", "${input:operatorVersion}"],
+            "args": [
+                "${input:operatorType}",
+                "${input:operatorVersion}"
+            ],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -188,60 +268,17 @@
             },
             "icon": {
                 "id": "cloud-download",
-                "color": "terminal.ansiBlue"
+                "color": "terminal.ansiWhite"
             },
             "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
                 "statusbar": {
-                    "label": "install operator"
-                }
-            }
-        },
-        {
-            "label": "Open OpenShift Console",
-            "type": "shell",
-            "command": "${BROWSER:-brave-browser} $(oc whoami --show-console)",
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "close": false
-            },
-            "icon": {
-                "id": "globe",
-                "color": "terminal.ansiRed"
-            },
-            "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
-                "statusbar": {
-                    "label": "oc console"
-                }
-            }
-        },
-        {
-            "label": "Fix ODH Dashboard Route (CRC)",
-            "type": "shell",
-            "command": "oc create route passthrough data-science-gateway --service=data-science-gateway-data-science-gateway-class --port=443 --hostname=data-science-gateway.apps-crc.testing -n openshift-ingress",
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared",
-                "close": false
-            },
-            "icon": {
-                "id": "plug",
-                "color": "terminal.ansiMagenta"
-            },
-            "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
-                "statusbar": {
-                    "label": "fix odh route"
+                    "label": "operator",
+                    "detail": "Install ODH or RHOAI operator from OperatorHub",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiWhite",
+                    "running": {
+                        "color": "terminal.ansiYellow"
+                    }
                 }
             }
         },
@@ -260,11 +297,193 @@
                 "color": "terminal.ansiCyan"
             },
             "options": {
-                "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}"
-                },
                 "statusbar": {
-                    "label": "apply dsci+dsc"
+                    "label": "dsci+dsc",
+                    "detail": "Apply DSCInitialization and DataScienceCluster CRs",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiCyan",
+                    "running": {
+                        "color": "terminal.ansiYellow"
+                    }
+                }
+            }
+        },
+        {
+            "label": "Setup E2E",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
+            "args": [
+                "${input:marker}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiWhite"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "e2e setup",
+                    "detail": "Setup E2E test environment for OpenShift",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiWhite",
+                    "running": {
+                        "color": "terminal.ansiYellow"
+                    }
+                }
+            }
+        },
+        {
+            "label": "Recreate E2E ns",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh",
+            "args": [
+                "${input:marker}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "refresh",
+                "color": "terminal.ansiCyan"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "e2e ns",
+                    "detail": "Delete and recreate E2E test namespace",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiCyan",
+                    "running": {
+                        "color": "terminal.ansiYellow"
+                    }
+                }
+            },
+            "isBackground": false
+        },
+        {
+            "label": "Teardown E2E",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/teardown-e2e-setup.sh",
+            "args": [
+                "${input:marker}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "trash",
+                "color": "terminal.ansiYellow"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "e2e teardown",
+                    "detail": "Teardown E2E test environment",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiYellow",
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "Open OpenShift Console",
+            "type": "shell",
+            "command": "${BROWSER:-brave-browser} $(oc whoami --show-console)",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "globe",
+                "color": "terminal.ansiWhite"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "console",
+                    "detail": "Open OpenShift web console in browser",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiWhite"
+                }
+            }
+        },
+        {
+            "label": "Fix ODH Dashboard Route (CRC)",
+            "type": "shell",
+            "command": "oc create route passthrough data-science-gateway --service=data-science-gateway-data-science-gateway-class --port=443 --hostname=data-science-gateway.apps-crc.testing -n openshift-ingress",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "close": false
+            },
+            "icon": {
+                "id": "plug",
+                "color": "terminal.ansiYellow"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "fix route",
+                    "detail": "Create passthrough route for ODH dashboard on CRC",
+                    "backgroundColor": "statusBarItem.errorBackground",
+                    "color": "terminal.ansiYellow"
+                }
+            }
+        },
+        // ============================================================
+        // DEVELOPMENT (green - platform agnostic)
+        // ============================================================
+        {
+            "label": "Devspace Dev",
+            "type": "shell",
+            "command": "devspace",
+            "args": [
+                "dev",
+                "--namespace",
+                "${input:devspaceNamespace}",
+                "--kube-context",
+                "${input:devspaceKubecontext}",
+                // "--silent"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "devspace \\./app"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "coffee",
+                "color": "terminal.ansiGreen"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode",
+                "statusbar": {
+                    "label": "devspace",
+                    "detail": "Start Devspace dev mode for live controller development",
+                    "color": "terminal.ansiGreen",
+                    "running": {
+                        "color": "#006600"
+                    }
                 }
             }
         },
@@ -272,7 +491,9 @@
             "label": "Create HF Token Secret + SA",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/create-hf-secret.sh",
-            "args": ["${input:hfNamespace}"],
+            "args": [
+                "${input:hfNamespace}"
+            ],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -281,15 +502,121 @@
             },
             "icon": {
                 "id": "key",
-                "color": "terminal.ansiGreen"
+                "color": "terminal.ansiMagenta"
             },
             "options": {
                 "env": {
-                    "KUBECONFIG": "${env:KUBECONFIG}",
                     "HF_TOKEN": "${env:HF_TOKEN}"
                 },
                 "statusbar": {
-                    "label": "hf secret"
+                    "label": "hf secret",
+                    "detail": "Create HuggingFace token secret and service account",
+                    "color": "terminal.ansiMagenta"
+                }
+            }
+        },
+        {
+            "label": "Setup Dev Environment",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/scripts/setup-dev-env.sh",
+            "args": [
+                "--force"
+            ],
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared",
+                "close": true
+            },
+            "icon": {
+                "id": "package",
+                "color": "terminal.ansiBlue"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "setup py",
+                    "detail": "Setup Python virtual environment and install dependencies",
+                    "color": "terminal.ansiBlue",
+                    "running": {
+                        "color": "terminal.ansiYellow"
+                    }
+                }
+            }
+        },
+        {
+            "label": "Watch Resource Status",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/scripts/watch-status.sh",
+            "args": [
+                "${input:watchKind}",
+                "${input:watchNamespace}"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "^$"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "close": false
+            },
+            "icon": {
+                "id": "eye",
+                "color": "terminal.ansiCyan"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "watch",
+                    "detail": "Watch Kubernetes resource status changes",
+                    "color": "terminal.ansiCyan",
+                    "running": {
+                        "color": "#008B8B"
+                    }
+                }
+            }
+        },
+        {
+            "label": "Watch KServe Controller Logs",
+            "type": "shell",
+            "command": "kubectl logs -f -n kserve deployment/kserve-controller-manager --all-containers",
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "^$"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "close": false
+            },
+            "icon": {
+                "id": "output",
+                "color": "terminal.ansiYellow"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "logs",
+                    "detail": "Watch KServe controller logs",
+                    "color": "terminal.ansiYellow",
+                    "running": {
+                        "color": "#B8860B"
+                    }
                 }
             }
         }
@@ -297,21 +624,36 @@
     "inputs": [
         {
             "id": "devspaceNamespace",
-            "type": "promptString",
+            "type": "pickString",
             "description": "Namespace for devspace dev",
+            "options": [
+                "kserve",
+                "openshift",
+                "rhods"
+            ],
             "default": "kserve"
         },
         {
             "id": "devspaceKubecontext",
             "type": "promptString",
-            "description": "Kubecontext for devspace dev",
+            "description": "Kubecontext for devspace dev - eg. crc-admin, kind-kind",
             "default": "crc-admin"
         },
         {
             "id": "marker",
-            "type": "promptString",
-            "description": "Pytest marker for E2E tests",
-            "default": "kserve_on_openshift"
+            "type": "pickString",
+            "description": "Pytest marker",
+            "options": [
+                "predictor",
+                "kserve_on_openshift",
+                "graph",
+                "path_based_routing",
+                "batcher",
+                "explainer",
+                "transformer",
+                ""
+            ],
+            "default": "predictor"
         },
         {
             "id": "operatorType",
@@ -330,6 +672,57 @@
             "id": "hfNamespace",
             "type": "promptString",
             "description": "Namespace for HuggingFace secret and service account (leave empty for current namespace)",
+            "default": ""
+        },
+        {
+            "id": "watchKind",
+            "type": "pickString",
+            "description": "Kubernetes resource kind to watch",
+            "options": [
+                "deployments",
+                "pods",
+                "inferenceservices",
+                "services",
+                "replicasets",
+                "statefulsets"
+            ],
+            "default": "deployments"
+        },
+        {
+            "id": "watchNamespace",
+            "type": "promptString",
+            "description": "Namespace to watch resources in",
+            "default": "kserve-ci-e2e-test"
+        },
+        {
+            "id": "deploymentMode",
+            "type": "pickString",
+            "description": "Deployment mode for KServe",
+            "options": [
+                { "label": "Knative (serverless)", "value": "-s" },
+                { "label": "Standard (raw deployment)", "value": "-r" }
+            ],
+            "default": "-s"
+        },
+        {
+            "id": "installKeda",
+            "type": "pickString",
+            "description": "Install KEDA for autoscaling?",
+            "options": [
+                { "label": "No", "value": "" },
+                { "label": "Yes", "value": "-k" }
+            ],
+            "default": ""
+        },
+        {
+            "id": "deploymentModeOverride",
+            "type": "pickString",
+            "description": "Deployment mode (leave empty to auto-detect based on Knative availability)",
+            "options": [
+                { "label": "Auto-detect", "value": "" },
+                { "label": "Knative (serverless)", "value": "Knative" },
+                { "label": "Standard (raw deployment)", "value": "Standard" }
+            ],
             "default": ""
         }
     ]
