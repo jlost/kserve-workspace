@@ -154,6 +154,52 @@
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "E2E Test by Name",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-k",
+                "${input:testName}",
+                "--network-layer",
+                "${input:networkLayer}",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "E2E Test by Name (Kind)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "preLaunchTask": "Setup E2E + Port Forward (Kind)",
+            "args": [
+                "-k",
+                "${input:testName}",
+                "--network-layer",
+                "istio",
+                "-v",
+                "-s",
+                "--log-cli-level=INFO"
+            ],
+            "cwd": "${workspaceFolder}/test/e2e",
+            "env": {
+                "KSERVE_INGRESS_HOST_PORT": "localhost:8080",
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+            },
+            "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ],
     "inputs": [
@@ -162,6 +208,12 @@
             "type": "promptString",
             "description": "Test path (e.g., predictor/test_sklearn.py::test_sklearn_kserve)",
             "default": "predictor/test_sklearn.py::test_sklearn_kserve"
+        },
+        {
+            "id": "testName",
+            "type": "promptString",
+            "description": "Test name pattern (e.g., test_sklearn or test_sklearn_kserve)",
+            "default": ""
         },
         {
             "id": "marker",

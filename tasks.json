@@ -33,12 +33,7 @@
         {
             "label": "Install KServe Dependencies",
             "type": "shell",
-            "command": "${workspaceFolder}/hack/quick_install.sh",
-            "args": [
-                "-d",
-                "${input:deploymentMode}",
-                "${input:installKeda}"
-            ],
+            "command": "${workspaceFolder}/hack/quick_install.sh -d ${input:deploymentMode} ${input:installKeda} && ${workspaceFolder}/.vscode/scripts/install-network-deps.sh ${input:networkLayer}",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -52,7 +47,7 @@
             "options": {
                 "statusbar": {
                     "label": "deps",
-                    "detail": "Install KServe dependencies (Istio, cert-manager, etc.)",
+                    "detail": "Install KServe dependencies (Istio, cert-manager, Gateway API)",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiBlue",
                     "running": {
@@ -77,6 +72,9 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}",
+                "env": {
+                    "GATEWAY_NETWORK_LAYER": "${input:gatewayNetworkLayer}"
+                },
                 "statusbar": {
                     "label": "deploy",
                     "detail": "Undeploy and redeploy KServe controller",
@@ -286,6 +284,9 @@
             "label": "Apply DSCI + DSC",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/apply-dsci-dsc.sh",
+            "args": [
+                "${input:enableKueue}"
+            ],
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -724,6 +725,38 @@
                 { "label": "Standard (raw deployment)", "value": "Standard" }
             ],
             "default": ""
+        },
+        {
+            "id": "enableKueue",
+            "type": "pickString",
+            "description": "Enable Kueue component in DSC?",
+            "options": [
+                { "label": "No", "value": "false" },
+                { "label": "Yes", "value": "true" }
+            ],
+            "default": "false"
+        },
+        {
+            "id": "networkLayer",
+            "type": "pickString",
+            "description": "Network layer for ingress (used when installing dependencies)",
+            "options": [
+                { "label": "Istio Ingress (default)", "value": "istio" },
+                { "label": "Istio + Gateway API", "value": "istio-gatewayapi" },
+                { "label": "Envoy + Gateway API", "value": "envoy-gatewayapi" }
+            ],
+            "default": "istio"
+        },
+        {
+            "id": "gatewayNetworkLayer",
+            "type": "pickString",
+            "description": "Gateway network layer for KServe config (match your dependency installation)",
+            "options": [
+                { "label": "None (Istio Ingress)", "value": "false" },
+                { "label": "Istio Gateway API", "value": "istio" },
+                { "label": "Envoy Gateway API", "value": "envoy" }
+            ],
+            "default": "false"
         }
     ]
 }

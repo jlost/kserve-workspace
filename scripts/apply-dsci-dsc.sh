@@ -2,8 +2,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENABLE_KUEUE="${1:-false}"
 
 DSCI_FILE="${SCRIPT_DIR}/../resources/dsci.yaml"
+DSC_FILE="${SCRIPT_DIR}/../resources/dsc.yaml"
 DESIRED_APP_NS=$(yq '.spec.applicationsNamespace' "$DSCI_FILE")
 DESIRED_MON_NS=$(yq '.spec.monitoring.namespace' "$DSCI_FILE")
 
@@ -28,9 +30,14 @@ echo "DSCI ready (applicationsNamespace: $APP_NS), waiting 5s..."
 sleep 5
 
 echo "Applying DSC..."
-oc apply -f "${SCRIPT_DIR}/../resources/dsc.yaml"
+if [[ "$ENABLE_KUEUE" == "true" ]]; then
+  echo "Enabling Kueue (managementState: Managed)..."
+  yq '.spec.components.kueue.managementState = "Managed"' "$DSC_FILE" | oc apply -f -
+else
+  oc apply -f "$DSC_FILE"
+fi
 echo "DSC applied, waiting for deployment to be created..."
-sleep 10
+sleep 30
 
 echo "Waiting for kserve-controller-manager to roll out in $APP_NS..."
 oc rollout status deployment/kserve-controller-manager -n "$APP_NS" --timeout=300s

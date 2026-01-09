@@ -1,8 +1,21 @@
 {
-    // Python interpreter settings - automatically use the project venv
+    // Go test environment - kubebuilder assets for envtest
+    "go.testEnvVars": {
+        "KUBEBUILDER_ASSETS": "${workspaceFolder}/bin/k8s/1.34.1-linux-amd64"
+    },
+    
+    // Python interpreter settings - use the project venv
     "python.defaultInterpreterPath": "${workspaceFolder}/python/kserve/.venv/bin/python",
-    "python.terminal.activateEnvironment": true,
-    "python.terminal.activateEnvInCurrentTerminal": true,
+    
+    // Disable Python extension's terminal activation (it caches absolute paths, breaking worktrees)
+    "python.terminal.activateEnvironment": false,
+    "python.terminal.activateEnvInCurrentTerminal": false,
+    
+    // Use VS Code's native terminal env instead (evaluates ${workspaceFolder} per-workspace)
+    "terminal.integrated.env.linux": {
+        "VIRTUAL_ENV": "${workspaceFolder}/python/kserve/.venv",
+        "PATH": "${workspaceFolder}/python/kserve/.venv/bin:${env:PATH}"
+    },
     
     // Test discovery
     "python.testing.pytestEnabled": true,

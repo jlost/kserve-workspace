@@ -150,6 +150,29 @@ code .
 
 Once VS Code has loaded, press `F1` and type **'show recommended extensions'**. Press `ENTER`. Install all of the workspace recommendations.
 
+## Optional Steps
+
+These steps are not required but can improve your development experience.
+
+### Create a Global Gitignore
+
+A global gitignore prevents common development artifacts from cluttering `git status` across all your projects. Create one at `~/.gitignore`:
+
+```sh
+cat > ~/.gitignore << 'EOF'
+.venv
+.cursor
+.devspace
+__debug_bin*
+EOF
+```
+
+Then configure git to use it:
+
+```sh
+git config --global core.excludesFile ~/.gitignore
+```
+
 ## FAQ
 
 **Q: pytest keeps running in the background after I click Stop. How do I actually stop it?**
