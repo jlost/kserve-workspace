@@ -33,7 +33,7 @@
         {
             "label": "Install KServe Dependencies",
             "type": "shell",
-            "command": "${workspaceFolder}/hack/quick_install.sh -d ${input:deploymentMode} ${input:installKeda} && ${workspaceFolder}/.vscode/scripts/install-network-deps.sh ${input:networkLayer}",
+            "command": "${workspaceFolder}/hack/quick_install.sh -d ${input:deploymentMode} ${input:installKeda}",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -47,9 +47,35 @@
             "options": {
                 "statusbar": {
                     "label": "deps",
-                    "detail": "Install KServe dependencies (Istio, cert-manager, Gateway API)",
+                    "detail": "Install KServe dependencies (cert-manager, Knative/KEDA)",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiBlue",
+                    "running": {
+                        "color": "terminal.ansiBlack"
+                    }
+                }
+            }
+        },
+        {
+            "label": "Install Network Dependencies",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/scripts/install-network-deps.sh ${input:networkLayer}",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "globe",
+                "color": "terminal.ansiMagenta"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "network",
+                    "detail": "Install network layer (Istio, Gateway API)",
+                    "backgroundColor": "statusBarItem.warningBackground",
+                    "color": "terminal.ansiMagenta",
                     "running": {
                         "color": "terminal.ansiBlack"
                     }
@@ -556,6 +582,9 @@
                 "${input:watchNamespace}"
             ],
             "isBackground": true,
+            "runOptions": {
+                "instanceLimit": 0
+            },
             "problemMatcher": {
                 "pattern": {
                     "regexp": "^$"
@@ -660,7 +689,10 @@
             "id": "operatorType",
             "type": "pickString",
             "description": "Select operator to install",
-            "options": ["odh", "rhods"],
+            "options": [
+                "odh",
+                "rhods"
+            ],
             "default": "odh"
         },
         {
@@ -700,8 +732,14 @@
             "type": "pickString",
             "description": "Deployment mode for KServe",
             "options": [
-                { "label": "Knative (serverless)", "value": "-s" },
-                { "label": "Standard (raw deployment)", "value": "-r" }
+                {
+                    "label": "Knative (serverless)",
+                    "value": "-s"
+                },
+                {
+                    "label": "Standard (raw deployment)",
+                    "value": "-r"
+                }
             ],
             "default": "-s"
         },
@@ -710,8 +748,14 @@
             "type": "pickString",
             "description": "Install KEDA for autoscaling?",
             "options": [
-                { "label": "No", "value": "" },
-                { "label": "Yes", "value": "-k" }
+                {
+                    "label": "No",
+                    "value": ""
+                },
+                {
+                    "label": "Yes",
+                    "value": "-k"
+                }
             ],
             "default": ""
         },
@@ -720,9 +764,18 @@
             "type": "pickString",
             "description": "Deployment mode (leave empty to auto-detect based on Knative availability)",
             "options": [
-                { "label": "Auto-detect", "value": "" },
-                { "label": "Knative (serverless)", "value": "Knative" },
-                { "label": "Standard (raw deployment)", "value": "Standard" }
+                {
+                    "label": "Auto-detect",
+                    "value": ""
+                },
+                {
+                    "label": "Knative (serverless)",
+                    "value": "Knative"
+                },
+                {
+                    "label": "Standard (raw deployment)",
+                    "value": "Standard"
+                }
             ],
             "default": ""
         },
@@ -731,8 +784,14 @@
             "type": "pickString",
             "description": "Enable Kueue component in DSC?",
             "options": [
-                { "label": "No", "value": "false" },
-                { "label": "Yes", "value": "true" }
+                {
+                    "label": "No",
+                    "value": "false"
+                },
+                {
+                    "label": "Yes",
+                    "value": "true"
+                }
             ],
             "default": "false"
         },
@@ -741,9 +800,18 @@
             "type": "pickString",
             "description": "Network layer for ingress (used when installing dependencies)",
             "options": [
-                { "label": "Istio Ingress (default)", "value": "istio" },
-                { "label": "Istio + Gateway API", "value": "istio-gatewayapi" },
-                { "label": "Envoy + Gateway API", "value": "envoy-gatewayapi" }
+                {
+                    "label": "Istio Ingress (default)",
+                    "value": "istio"
+                },
+                {
+                    "label": "Istio + Gateway API",
+                    "value": "istio-gatewayapi"
+                },
+                {
+                    "label": "Envoy + Gateway API",
+                    "value": "envoy-gatewayapi"
+                }
             ],
             "default": "istio"
         },
@@ -752,9 +820,18 @@
             "type": "pickString",
             "description": "Gateway network layer for KServe config (match your dependency installation)",
             "options": [
-                { "label": "None (Istio Ingress)", "value": "false" },
-                { "label": "Istio Gateway API", "value": "istio" },
-                { "label": "Envoy Gateway API", "value": "envoy" }
+                {
+                    "label": "None (Istio Ingress)",
+                    "value": "false"
+                },
+                {
+                    "label": "Istio Gateway API",
+                    "value": "istio"
+                },
+                {
+                    "label": "Envoy Gateway API",
+                    "value": "envoy"
+                }
             ],
             "default": "false"
         }

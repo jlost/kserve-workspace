@@ -3,20 +3,17 @@
     "go.testEnvVars": {
         "KUBEBUILDER_ASSETS": "${workspaceFolder}/bin/k8s/1.34.1-linux-amd64"
     },
-    
     // Python interpreter settings - use the project venv
     "python.defaultInterpreterPath": "${workspaceFolder}/python/kserve/.venv/bin/python",
-    
     // Disable Python extension's terminal activation (it caches absolute paths, breaking worktrees)
     "python.terminal.activateEnvironment": false,
     "python.terminal.activateEnvInCurrentTerminal": false,
-    
     // Use VS Code's native terminal env instead (evaluates ${workspaceFolder} per-workspace)
     "terminal.integrated.env.linux": {
         "VIRTUAL_ENV": "${workspaceFolder}/python/kserve/.venv",
-        "PATH": "${workspaceFolder}/python/kserve/.venv/bin:${env:PATH}"
+        "PATH": "${workspaceFolder}/python/kserve/.venv/bin:${env:PATH}",
+        "KUBEBUILDER_ASSETS": "${workspaceFolder}/bin/k8s/1.34.1-linux-amd64"
     },
-    
     // Test discovery
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
@@ -27,7 +24,6 @@
     "python.testing.unittestEnabled": false,
     "flake8.importStrategy": "fromEnvironment",
     "black-formatter.importStrategy": "fromEnvironment",
-    
     // Python path settings
     "cursorpyright.analysis.extraPaths": [
         "${workspaceFolder}/python/kserve",
@@ -35,5 +31,13 @@
     ],
     "cursorpyright.analysis.typeCheckingMode": "standard",
     "cursorpyright.analysis.autoImportCompletions": true,
+    // Format on save
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "[go]": {
+        "editor.defaultFormatter": "golang.go"
+    },
+    "go.formatTool": "goimports"
 }
-
