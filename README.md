@@ -25,10 +25,6 @@ A batteries-included development environment for KServe on OpenShift. Clone, ins
   - HuggingFace token secret creation
   - Open OpenShift Console in browser
 
-## 📋 Prereqs
-
-All prereqs (required tools + environment variables) are documented in [Setup -> Install Development Tools -> Manual Setup](#manual-setup).
-
 ## 🛠️ Setup
 
 ### 1. 📦 Clone Workspace Configuration
@@ -134,16 +130,8 @@ ln -s "$HOME/.config/containers/auth.json" ~/.docker/config.json
 
 **Note:** The symlink target must be an absolute path. Verify with `ls -la ~/.docker/config.json` - it should show the full path (e.g., `/home/user/.config/containers/auth.json`), not a relative path.
 
-### 4. 🐍 Set Up Python Environment
 
-Make sure the python venv is set up:
-
-```sh
-cd python/kserve
-uv sync --group test --group dev
-```
-
-### 5. 💻 Start VS Code and Install Extensions
+### 4. 💻 Start VS Code and Install Extensions
 
 Start VS Code:
 
