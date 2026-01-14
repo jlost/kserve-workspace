@@ -2,6 +2,10 @@
 
 A batteries-included development environment for KServe on OpenShift. Clone, install extensions, and start coding -- debugging, testing, formatting, and cluster management are all pre-configured.
 
+<a href="https://github.com/user-attachments/assets/010e60a2-dc4a-43ea-9264-ba0720732824">
+  <img src="https://github.com/user-attachments/assets/010e60a2-dc4a-43ea-9264-ba0720732824" alt="VS Code workspace screenshot" width="400" align="right">
+</a>
+
 ## Features
 
 * **Go intellisense** - Code completion, signature help, go-to-definition, and refactoring via the Go extension
