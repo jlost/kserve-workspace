@@ -477,7 +477,7 @@
             "args": [
                 "dev",
                 "--namespace",
-                "${input:devspaceNamespace}",
+                "${input:kserveNamespace}",
                 "--kube-context",
                 "${input:devspaceKubecontext}",
                 // "--silent"
@@ -618,7 +618,7 @@
         {
             "label": "Watch KServe Controller Logs",
             "type": "shell",
-            "command": "kubectl logs -f -n kserve deployment/kserve-controller-manager --all-containers",
+            "command": "kubectl logs -f -n ${input:kserveNamespace} deployment/kserve-controller-manager --all-containers",
             "isBackground": true,
             "problemMatcher": {
                 "pattern": {
@@ -653,13 +653,13 @@
     ],
     "inputs": [
         {
-            "id": "devspaceNamespace",
+            "id": "kserveNamespace",
             "type": "pickString",
-            "description": "Namespace for devspace dev",
+            "description": "KServe controller namespace",
             "options": [
                 "kserve",
-                "openshift",
-                "rhods"
+                "opendatahub",
+                "redhat-ods-applications"
             ],
             "default": "kserve"
         },

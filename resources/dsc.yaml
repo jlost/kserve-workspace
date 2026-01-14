@@ -23,7 +23,7 @@ spec:
     kueue:
       defaultClusterQueueName: default
       defaultLocalQueueName: default
-      managementState: Removed
+      managementState: $KUEUE_STATE
     llamastackoperator:
       managementState: Removed
     modelmeshserving: {}
@@ -43,5 +43,3 @@ spec:
     workbenches:
       managementState: Removed
       workbenchNamespace: opendatahub
-
-
