@@ -119,7 +119,17 @@ echo "Project root: $PROJECT_ROOT"
 # Remove existing venv if force
 if [[ -d "$VENV_DIR" ]]; then
     echo "Removing existing venv..."
-    rm -rf "$VENV_DIR"
+    # Retry removal - VS Code's Python extension may be indexing the venv
+    for i in 1 2 3; do
+        rm -rf "$VENV_DIR" 2>/dev/null && break
+        echo "Removal failed (attempt $i/3), retrying in 1s..."
+        sleep 1
+    done
+    if [[ -d "$VENV_DIR" ]]; then
+        echo "Error: Could not remove $VENV_DIR"
+        echo "Try closing VS Code or killing processes using it: lsof +D $VENV_DIR"
+        exit 1
+    fi
 fi
 
 # Detect format and install
