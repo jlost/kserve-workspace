@@ -463,7 +463,8 @@
                     "label": "fix route",
                     "detail": "Create passthrough route for ODH dashboard on CRC",
                     "backgroundColor": "statusBarItem.errorBackground",
-                    "color": "terminal.ansiYellow"
+                    "color": "terminal.ansiYellow",
+                    "hide": true, // I believe this has been fixed in the operator
                 }
             }
         },
@@ -547,7 +548,7 @@
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/setup-dev-env.sh",
             "args": [
-                "--force"
+                // "--force"
             ],
             "runOptions": {
                 "runOn": "folderOpen"
@@ -569,7 +570,8 @@
                     "color": "terminal.ansiBlue",
                     "running": {
                         "color": "terminal.ansiYellow"
-                    }
+                    },
+                    "hide": true
                 }
             }
         },

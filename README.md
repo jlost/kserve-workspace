@@ -15,15 +15,10 @@ A batteries-included development environment for KServe on OpenShift. Clone, ins
 * **Formatters and linters** - Black formatter, Flake8 linting, and ShellCheck for shell scripts
 * **Kubernetes tooling** - Cluster exploration, manifest editing, and resource management
 * **YAML support** - Schema validation and autocompletion for Kubernetes manifests
-* **Task automation** - One-click tasks for common workflows:
-  - E2E test setup/teardown and namespace recreation
-  - Devspace Dev for remote controller debugging
-  - CRC Refresh to restart OpenShift Local
-  - Pull Secret installation for private registries
-  - ODH/RHOAI operator installation
-  - DSCI + DSC application
-  - HuggingFace token secret creation
-  - Open OpenShift Console in browser
+* **Task automation** - Adds the KServe Toolbar™ with one-click tasks for common workflows (see [workflow.md](workflow.md) for details):
+  - 🟡 **Kind/Upstream**: Kind Refresh, Install Dependencies, Network Dependencies, Deploy KServe, Patch Mode
+  - 🔴 **OpenShift**: CRC Refresh, Pull Secret, ODH/RHOAI Operator, DSCI+DSC, E2E Setup, E2E Namespace, Console
+  - 🟢 **Dev Tools**: Devspace Dev, HF Token Secret, Watch Resources, Watch Logs
 
 ## 🛠️ Setup
 
@@ -77,7 +72,8 @@ For Fedora users, automated setup scripts are available in `.vscode/`:
    * envsubst (gettext)
    * devspace
    * ko
-   * A web browser (set `$BROWSER`, defaults to `brave-browser`)
+   * kind
+   * docker
 
 2. Configure environment variables by adding them to your shell's configuration file (`~/.zshenv`, `~/.bashrc`, or `~/.profile` depending on your shell).
 
@@ -183,4 +179,4 @@ Run the "Install Pull Secret" task to inject your docker and quay credentials.
 
 Contributions welcome! Fork and submit a pull request.
 
-Make a best effort to fashion contributions to be as environment-agnostic as possible and document exceptions in [Prereqs](README.md#prereqs).
+Make a best effort to fashion contributions to be as environment-agnostic as possible and document exceptions in [Setup](#-setup).
