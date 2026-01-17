@@ -16,14 +16,16 @@ flowchart TB
     subgraph kind["☸️ KIND / UPSTREAM (Local Kubernetes)"]
         direction TB
         K1["🔄 Kind Refresh<br/><i>Delete & recreate Kind cluster</i>"]
-        K2["📦 Install KServe Dependencies<br/><i>Istio, cert-manager, etc.</i>"]
+        K2["📦 Install KServe Dependencies<br/><i>cert-manager, Knative/KEDA</i>"]
+        K2b["🌐 Install Network Dependencies<br/><i>Istio, Gateway API</i>"]
         K3["🚀 Clean Deploy KServe<br/><i>make undeploy-dev; make deploy-dev</i>"]
         K4["⚙️ Patch Deployment Mode<br/><i>Knative or Standard</i>"]
         K5["🔄 Recreate E2E ns (upstream)<br/><i>kserve-ci-e2e-test</i>"]
         K6["▶️ Setup E2E + Port Forward<br/><i>Create ns + port-forward 8080:80</i>"]
         
         K1 --> K2
-        K2 --> K3
+        K2 --> K2b
+        K2b --> K3
         K3 --> K4
         K4 --> K5
         K5 --> K6
@@ -36,18 +38,25 @@ flowchart TB
         direction TB
         O1["🖥️ CRC Refresh<br/><i>Start/refresh CRC cluster</i>"]
         O2["🔑 Pull Secret<br/><i>Configure RH registry access</i>"]
-        O3["☁️ Install ODH/RHOAI Operator<br/><i>From OperatorHub</i>"]
-        O4["🔧 Apply DSCI + DSC<br/><i>DataScienceCluster CRs</i>"]
-        O5["⚙️ Setup E2E<br/><i>OpenShift E2E environment</i>"]
-        O6["🔄 Recreate E2E ns<br/><i>setup-ci-namespace.sh</i>"]
+        
+        subgraph manual["Manual Repro Path"]
+            O3["☁️ Install ODH/RHOAI Operator<br/><i>From OperatorHub</i>"]
+            O4["🔧 Apply DSCI + DSC<br/><i>DataScienceCluster CRs</i>"]
+        end
+        
+        subgraph e2e["E2E Tests Path"]
+            O5["⚙️ Setup E2E<br/><i>OpenShift E2E environment</i>"]
+            O6["🔄 Recreate E2E ns<br/><i>setup-ci-namespace.sh</i>"]
+        end
+        
         O7["🌐 Open Console<br/><i>OpenShift web console</i>"]
         O8["🔌 Fix Dashboard Route<br/><i>CRC passthrough route</i>"]
         O9["🗑️ Teardown E2E<br/><i>Clean up E2E setup</i>"]
         
         O1 --> O2
         O2 --> O3
+        O2 --> O5
         O3 --> O4
-        O4 --> O5
         O5 --> O6
         O4 -.-> O7
         O4 -.-> O8
@@ -108,7 +117,7 @@ flowchart TB
     classDef goalStyle fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000
     classDef startStyle fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#000
 
-    class K1,K2,K3,K4,K5,K6 kindStyle
+    class K1,K2,K2b,K3,K4,K5,K6 kindStyle
     class O1,O2,O3,O4,O5,O6,O7,O8,O9 ocpStyle
     class D1,D2,D3,D4,D5 devStyle
     class G1,G2,G3 goalStyle
@@ -121,7 +130,7 @@ flowchart TB
 
 **Sequence:**
 ```
-Kind Refresh -> Install Dependencies -> Deploy KServe -> Patch Mode -> E2E ns -> Port Forward
+Kind Refresh -> Install Dependencies -> Install Network -> Deploy KServe -> Patch Mode -> E2E ns -> Port Forward
 ```
 
 **Use when:**
@@ -134,15 +143,26 @@ Kind Refresh -> Install Dependencies -> Deploy KServe -> Patch Mode -> E2E ns ->
 | Task | Statusbar Label | Description |
 |------|-----------------|-------------|
 | Kind Refresh | `kind` | Delete and recreate Kind cluster |
-| Install KServe Dependencies | `deps` | Install Istio, cert-manager, Knative, Gateway API (optional) |
+| Install KServe Dependencies | `deps` | Install cert-manager, Knative or KEDA (based on deployment mode) |
+| Install Network Dependencies | `network` | Install Istio, Gateway API (Istio or Envoy) |
 | Clean Deploy KServe | `deploy` | `make undeploy-dev; make deploy-dev` with Gateway config |
-| Patch Deployment Mode | `mode` | Set Knative or Standard mode |
+| Patch Deployment Mode | `mode` | Set Knative or Standard mode (auto-detects if not specified) |
 | Recreate E2E ns (upstream) | `e2e ns` | Create `kserve-ci-e2e-test` namespace |
 | Setup E2E + Port Forward | `e2e+fwd` | Create ns + port-forward to Istio gateway |
 
+**Deployment Mode Options:**
+
+When running "Install KServe Dependencies", select the deployment mode:
+| Option | Description |
+|--------|-------------|
+| Knative (serverless) | Install Knative Serving for serverless deployments |
+| Standard (raw deployment) | Skip Knative, use raw Kubernetes deployments |
+
+Optionally install KEDA for autoscaling with Standard mode.
+
 **Network Layer Options:**
 
-When running "Install KServe Dependencies", select the network layer:
+When running "Install Network Dependencies", select the network layer:
 | Option | Description |
 |--------|-------------|
 | Istio Ingress (default) | Standard Istio ingress gateway |
@@ -152,9 +172,9 @@ When running "Install KServe Dependencies", select the network layer:
 When running "Clean Deploy KServe", select the matching gateway config:
 | Option | Use When |
 |--------|----------|
-| None (Istio Ingress) | Selected "Istio Ingress" for dependencies |
-| Istio Gateway API | Selected "Istio + Gateway API" for dependencies |
-| Envoy Gateway API | Selected "Envoy + Gateway API" for dependencies |
+| None (Istio Ingress) | Selected "Istio Ingress" for network dependencies |
+| Istio Gateway API | Selected "Istio + Gateway API" for network dependencies |
+| Envoy Gateway API | Selected "Envoy + Gateway API" for network dependencies |
 
 ---
 
@@ -162,7 +182,11 @@ When running "Clean Deploy KServe", select the matching gateway config:
 
 **Sequence:**
 ```
-CRC Refresh -> Pull Secret -> Install Operator -> Apply DSCI+DSC -> Setup E2E -> E2E ns
+CRC Refresh -> Pull Secret -> [Choose Path]
+                              |
+                              +-> Manual Repro: Install Operator -> Apply DSCI+DSC
+                              |
+                              +-> E2E Tests: Setup E2E -> Recreate E2E ns
 ```
 
 **Use when:**
@@ -171,15 +195,27 @@ CRC Refresh -> Pull Secret -> Install Operator -> Apply DSCI+DSC -> Setup E2E ->
 - Downstream validation before cherry-picks
 - Reproducing customer issues on OpenShift
 
-**Tasks:**
+**Common Setup Tasks:**
 | Task | Statusbar Label | Description |
 |------|-----------------|-------------|
 | CRC Refresh | `crc` | Start or refresh CRC OpenShift cluster |
 | Pull Secret | `pull secret` | Configure Red Hat registry access |
+
+**Manual Repro Path** (for manual testing/reproduction):
+| Task | Statusbar Label | Description |
+|------|-----------------|-------------|
 | Install ODH/RHOAI Operator | `operator` | Install from OperatorHub (ODH or RHOAI) |
 | Apply DSCI + DSC | `dsci+dsc` | Apply DataScienceCluster CRs |
-| Setup E2E | `e2e setup` | Setup E2E test environment |
+
+**E2E Tests Path** (for running pytest E2E tests):
+| Task | Statusbar Label | Description |
+|------|-----------------|-------------|
+| Setup E2E | `e2e setup` | Setup E2E test environment (installs operator, applies CRs) |
 | Recreate E2E ns | `e2e ns` | Delete and recreate test namespace |
+
+**Optional Tasks:**
+| Task | Statusbar Label | Description |
+|------|-----------------|-------------|
 | Open OpenShift Console | `console` | Open web console in browser |
 | Fix ODH Dashboard Route | `fix route` | Create passthrough route (CRC workaround) |
 | Teardown E2E | `e2e teardown` | Clean up E2E environment |
@@ -209,7 +245,7 @@ These tools work with both Kind and OpenShift clusters.
 2. Run pytest: `pytest test/e2e/ -m predictor`
 
 **From OpenShift:**
-1. Complete OpenShift setup through "Recreate E2E ns"
+1. Complete E2E Tests Path: CRC Refresh -> Pull Secret -> Setup E2E -> Recreate E2E ns
 2. Run pytest: `pytest test/e2e/ -m predictor`
 
 **Available Markers:**
@@ -278,12 +314,14 @@ See `launch.json` for debugger configurations targeting the controller.
 1. Kind Refresh
 2. Install KServe Dependencies
    - Deployment mode: Knative or Standard
+   - Install KEDA: No (or Yes for autoscaling with Standard)
+3. Install Network Dependencies
    - Network layer: Istio (default), Istio+GatewayAPI, or Envoy+GatewayAPI
-3. Clean Deploy KServe
-   - Gateway network layer: Match your dependency selection (false/istio/envoy)
-4. Patch Deployment Mode
-5. Setup E2E + Port Forward
-6. pytest test/e2e/ -m predictor
+4. Clean Deploy KServe
+   - Gateway network layer: Match your network layer selection (None/Istio/Envoy)
+5. Patch Deployment Mode
+6. Setup E2E + Port Forward
+7. pytest test/e2e/ -m predictor
 ```
 
 ### Kind: Gateway API Setup (Raw Deployment)
@@ -292,28 +330,39 @@ See `launch.json` for debugger configurations targeting the controller.
 1. Kind Refresh
 2. Install KServe Dependencies
    - Deployment mode: Standard (raw deployment)
+   - Install KEDA: No (or Yes for autoscaling)
+3. Install Network Dependencies
    - Network layer: Envoy + Gateway API
-3. Clean Deploy KServe
+4. Clean Deploy KServe
    - Gateway network layer: Envoy Gateway API
-4. Patch Deployment Mode (auto-detects Standard)
-5. Setup E2E + Port Forward
-6. pytest test/e2e/ -m raw
+5. Patch Deployment Mode (auto-detects Standard)
+6. Setup E2E + Port Forward
+7. pytest test/e2e/ -m raw
 ```
 
-### OpenShift: Zero to E2E Tests
+### OpenShift: Manual Repro
 ```bash
 # Via tasks (Ctrl+Shift+P -> Tasks: Run Task)
 1. CRC Refresh
 2. Pull Secret
 3. Install ODH/RHOAI Operator
 4. Apply DSCI + DSC
-5. Setup E2E (select marker)
-6. pytest test/e2e/ -m predictor
+# Ready for manual testing - apply your ISVC, check routes, etc.
+```
+
+### OpenShift: E2E Tests
+```bash
+# Via tasks (Ctrl+Shift+P -> Tasks: Run Task)
+1. CRC Refresh
+2. Pull Secret
+3. Setup E2E (select marker)
+4. Recreate E2E ns
+# Ready for pytest
 ```
 
 ### Quick Controller Iteration
 ```bash
-# After initial cluster setup
+# After initial cluster setup (Kind Refresh + Dependencies + Network + Deploy)
 1. Make code changes
 2. Clean Deploy KServe (or Devspace Dev for hot reload)
 3. Watch Controller Logs
