@@ -124,7 +124,10 @@
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "mcp": {
+                "outputLimit": 20480
+            }
         },
         {
             "name": "E2E Current File (Kind)",

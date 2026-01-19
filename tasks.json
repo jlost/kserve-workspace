@@ -235,8 +235,11 @@
                     "running": {
                         "color": "terminal.ansiYellow"
                     }
+                },
+                "mcp": {
+                    "interactive": true
                 }
-            }
+            },
         },
         {
             "label": "Pull Secret",
