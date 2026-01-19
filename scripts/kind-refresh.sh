@@ -23,7 +23,8 @@ echo "Cluster created successfully!"
 kubectl cluster-info --context "kind-${CLUSTER_NAME}"
 
 # 3. Start cloud-provider-kind if not already running
-if pgrep -x "cloud-provider-kind" > /dev/null; then
+# Note: Use -f to match full command line since process names are truncated to 15 chars
+if pgrep -f "cloud-provider-kind" > /dev/null; then
     echo "cloud-provider-kind is already running."
 else
     echo "Starting cloud-provider-kind in background..."

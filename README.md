@@ -33,7 +33,34 @@ git clone git@github.com:jlost/kserve-workspace.git .vscode
 
 You should now have a `.vscode` directory at the root of the kserve repository.
 
-### 2. 🔨 Install Development Tools
+### 2. 🔀 Configure Git Remotes
+
+Set up remotes for the multi-fork hierarchy (upstream, midstream, downstream):
+
+```sh
+# Add all remotes (assumes origin is your personal fork)
+git remote add upstream git@github.com:kserve/kserve.git
+git remote add odh git@github.com:opendatahub-io/kserve.git
+git remote add downstream git@github.com:red-hat-data-services/kserve.git
+
+# Verify setup
+git remote -v
+```
+
+Expected output:
+
+```
+downstream  git@github.com:red-hat-data-services/kserve.git (fetch)
+downstream  git@github.com:red-hat-data-services/kserve.git (push)
+odh         git@github.com:opendatahub-io/kserve.git (fetch)
+odh         git@github.com:opendatahub-io/kserve.git (push)
+origin      git@github.com:$GITHUB_USER/kserve.git (fetch)
+origin      git@github.com:$GITHUB_USER/kserve.git (push)
+upstream    git@github.com:kserve/kserve.git (fetch)
+upstream    git@github.com:kserve/kserve.git (push)
+```
+
+### 3. 🔨 Install Development Tools
 
 #### 🤖 Automated Setup (Fedora Only)
 
@@ -73,6 +100,7 @@ For Fedora users, automated setup scripts are available in `.vscode/`:
    * devspace
    * ko
    * kind
+   * cloud-provider-kind
    * docker
 
 2. Configure environment variables by adding them to your shell's configuration file (`~/.zshenv`, `~/.bashrc`, or `~/.profile` depending on your shell).
@@ -94,7 +122,7 @@ For Fedora users, automated setup scripts are available in `.vscode/`:
    BROWSER=firefox  # optional, defaults to brave-browser
    ```
 
-### 3. 🔐 Log in to Container Registries
+### 4. 🔐 Log in to Container Registries
 
 Use `podman login` to log in to docker and quay:
 
@@ -127,7 +155,7 @@ ln -s "$HOME/.config/containers/auth.json" ~/.docker/config.json
 **Note:** The symlink target must be an absolute path. Verify with `ls -la ~/.docker/config.json` - it should show the full path (e.g., `/home/user/.config/containers/auth.json`), not a relative path.
 
 
-### 4. 💻 Start VS Code and Install Extensions
+### 5. 💻 Start VS Code and Install Extensions
 
 Start VS Code:
 

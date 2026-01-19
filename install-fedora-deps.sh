@@ -271,6 +271,15 @@ install_from_dnf "podman"
 log_info "=== Installing kind ==="
 install_from_dnf "kind"
 
+# Install cloud-provider-kind (LoadBalancer support for Kind clusters)
+log_info "=== Installing cloud-provider-kind ==="
+if command -v go &> /dev/null; then
+    log_info "Installing cloud-provider-kind via go install..."
+    go install sigs.k8s.io/cloud-provider-kind@latest
+else
+    log_error "golang not found, cannot install cloud-provider-kind"
+fi
+
 # Enable and start Docker service (installed as kind dependency)
 log_info "=== Enabling and starting Docker service ==="
 if systemctl is-active --quiet docker; then
