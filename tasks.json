@@ -239,7 +239,7 @@
                 "mcp": {
                     "interactive": true
                 }
-            },
+            }
         },
         {
             "label": "Pull Secret",
@@ -588,7 +588,7 @@
             ],
             "isBackground": true,
             "runOptions": {
-                "instanceLimit": 0
+                "instanceLimit": 10
             },
             "problemMatcher": {
                 "pattern": {
