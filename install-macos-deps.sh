@@ -384,8 +384,17 @@ fi
 # Source the shell config to make variables available in current session
 if [[ -f "$SHELL_CONFIG" ]]; then
     log_info "Sourcing $SHELL_CONFIG to make variables available..."
-    # shellcheck source=/dev/null
-    source "$SHELL_CONFIG"
+    # Use zsh to source zsh config files (zstyle and other zsh-specific commands won't work in bash)
+    if [[ "$SHELL_CONFIG" == *".zshrc"* ]] || [[ "$SHELL_CONFIG" == *".zshenv"* ]]; then
+        if command -v zsh &> /dev/null; then
+            zsh -c "source $SHELL_CONFIG" || log_warn "Failed to source $SHELL_CONFIG (this is okay, variables will be available after shell restart)"
+        else
+            log_warn "zsh not available, skipping sourcing of zsh config file"
+        fi
+    else
+        # shellcheck source=/dev/null
+        source "$SHELL_CONFIG"
+    fi
 fi
 
 log_info "=== Installation complete! ==="
