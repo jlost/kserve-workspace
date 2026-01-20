@@ -62,15 +62,15 @@ upstream    git@github.com:kserve/kserve.git (push)
 
 ### 3. 🔨 Install Development Tools
 
-#### 🤖 Automated Setup (Fedora Only)
+#### 🤖 Automated Setup (Fedora/MacOS Only)
 
-For Fedora users, automated setup scripts are available in `.vscode/`:
+For Fedora and MacOS users, automated setup scripts are available in `.vscode/`:
 
-**Note**: These scripts are Fedora-specific and assume zsh as your default shell. If you prefer a different shell or have already set up tools manually, use [Manual Setup](#manual-setup) instead.
+**Note**: These scripts are Fedora or MacOS-specific and assume zsh as your default shell. If you prefer a different shell or have already set up tools manually, use [Manual Setup](#manual-setup) instead.
 
 1. **Install Development Dependencies**:
    ```sh
-   ./.vscode/install-fedora-deps.sh
+   ./.vscode/install-deps.sh
    ```
 
 2. **Configure Environment Variables**:
