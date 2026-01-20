@@ -6,6 +6,7 @@
         // ============================================================
         {
             "label": "Kind Refresh",
+            "detail": "Destroys existing cluster; use to reset to clean state",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/kind-refresh.sh",
             "problemMatcher": [],
@@ -21,7 +22,6 @@
             "options": {
                 "statusbar": {
                     "label": "kind",
-                    "detail": "Delete and recreate Kind cluster",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiBlack",
                     "running": {
@@ -32,6 +32,7 @@
         },
         {
             "label": "Install KServe Dependencies",
+            "detail": "Run after Kind Refresh; installs cert-manager and serving layer",
             "type": "shell",
             "command": "${workspaceFolder}/hack/quick_install.sh -d ${input:deploymentMode} ${input:installKeda}",
             "problemMatcher": [],
@@ -47,7 +48,6 @@
             "options": {
                 "statusbar": {
                     "label": "deps",
-                    "detail": "Install KServe dependencies (cert-manager, Knative/KEDA)",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiBlue",
                     "running": {
@@ -58,6 +58,7 @@
         },
         {
             "label": "Install Network Dependencies",
+            "detail": "Required for ingress; run before deploying KServe",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/install-network-deps.sh ${input:networkLayer}",
             "problemMatcher": [],
@@ -73,7 +74,6 @@
             "options": {
                 "statusbar": {
                     "label": "network",
-                    "detail": "Install network layer (Istio, Gateway API)",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiMagenta",
                     "running": {
@@ -84,6 +84,7 @@
         },
         {
             "label": "Clean Deploy KServe",
+            "detail": "Rebuilds and deploys controller from local source code",
             "type": "shell",
             "command": "make undeploy-dev; make deploy-dev",
             "problemMatcher": [],
@@ -103,7 +104,6 @@
                 },
                 "statusbar": {
                     "label": "deploy",
-                    "detail": "Undeploy and redeploy KServe controller",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiGreen",
                     "running": {
@@ -114,6 +114,7 @@
         },
         {
             "label": "Patch Deployment Mode",
+            "detail": "Updates inferenceservice-config; auto-detects if not specified",
             "type": "shell",
             "command": "MODE='${input:deploymentModeOverride}'; if [ -z \"$MODE\" ]; then if kubectl get knativeserving knative-serving -n knative-serving &>/dev/null; then MODE=Knative; else MODE=Standard; fi; echo \"Auto-detected mode: $MODE\"; else echo \"Using specified mode: $MODE\"; fi; kubectl patch configmap inferenceservice-config -n kserve --type=merge -p \"{\\\"data\\\":{\\\"deploy\\\":\\\"{\\\\\\\"defaultDeploymentMode\\\\\\\": \\\\\\\"$MODE\\\\\\\"}\\\"}}\"",
             "problemMatcher": [],
@@ -129,7 +130,6 @@
             "options": {
                 "statusbar": {
                     "label": "mode",
-                    "detail": "Patch defaultDeploymentMode based on Knative availability",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiYellow"
                 }
@@ -137,6 +137,7 @@
         },
         {
             "label": "Recreate E2E ns (upstream)",
+            "detail": "Clears test artifacts from kserve-ci-e2e-test namespace",
             "type": "shell",
             "command": "kubectl delete namespace kserve-ci-e2e-test --ignore-not-found && kubectl create namespace kserve-ci-e2e-test",
             "problemMatcher": [],
@@ -152,7 +153,6 @@
             "options": {
                 "statusbar": {
                     "label": "e2e ns",
-                    "detail": "Delete and recreate E2E namespace for Kind cluster",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiCyan",
                     "hide": true
@@ -161,6 +161,7 @@
         },
         {
             "label": "Setup E2E + Port Forward (Kind)",
+            "detail": "Enables inference at localhost:8080; runs in background",
             "type": "shell",
             "command": "kubectl create namespace kserve-ci-e2e-test --dry-run=client -o yaml | kubectl apply -f - && kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80",
             "isBackground": true,
@@ -186,7 +187,6 @@
             "options": {
                 "statusbar": {
                     "label": "e2e+fwd",
-                    "detail": "Create E2E namespace and start port forward to Istio gateway",
                     "backgroundColor": "statusBarItem.warningBackground",
                     "color": "terminal.ansiGreen",
                     "hide": true,
@@ -201,6 +201,7 @@
         // ============================================================
         {
             "label": "CRC Refresh",
+            "detail": "Starts VM if stopped; may prompt for pull secret",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/crc-refresh.sh",
             "args": [],
@@ -229,7 +230,6 @@
                 "cwd": "${workspaceFolder}/.vscode/scripts",
                 "statusbar": {
                     "label": "crc",
-                    "detail": "Start or refresh CRC OpenShift cluster",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiWhite",
                     "running": {
@@ -243,6 +243,7 @@
         },
         {
             "label": "Pull Secret",
+            "detail": "Enables pulling images from private registries",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/pull_secret.sh",
             "args": [],
@@ -270,7 +271,6 @@
                 "cwd": "${workspaceFolder}/.vscode/scripts",
                 "statusbar": {
                     "label": "pull secret",
-                    "detail": "Configure Red Hat registry pull secret",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiYellow",
                     "running": {
@@ -281,6 +281,7 @@
         },
         {
             "label": "Install ODH/RHOAI Operator",
+            "detail": "Installs operator via subscription; run DSCI+DSC next",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/install-odh-operator.sh",
             "args": [
@@ -300,7 +301,6 @@
             "options": {
                 "statusbar": {
                     "label": "operator",
-                    "detail": "Install ODH or RHOAI operator from OperatorHub",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiWhite",
                     "running": {
@@ -311,6 +311,7 @@
         },
         {
             "label": "Apply DSCI + DSC",
+            "detail": "Triggers operator to deploy KServe and dependencies",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/apply-dsci-dsc.sh",
             "args": [
@@ -329,7 +330,6 @@
             "options": {
                 "statusbar": {
                     "label": "dsci+dsc",
-                    "detail": "Apply DSCInitialization and DataScienceCluster CRs",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiCyan",
                     "running": {
@@ -340,6 +340,7 @@
         },
         {
             "label": "Setup E2E",
+            "detail": "Creates secrets, service accounts, and test fixtures",
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
             "args": [
@@ -358,7 +359,6 @@
             "options": {
                 "statusbar": {
                     "label": "e2e setup",
-                    "detail": "Setup E2E test environment for OpenShift",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiWhite",
                     "running": {
@@ -369,6 +369,7 @@
         },
         {
             "label": "Recreate E2E ns",
+            "detail": "Clears test artifacts; uses marker-specific namespace",
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh",
             "args": [
@@ -387,7 +388,6 @@
             "options": {
                 "statusbar": {
                     "label": "e2e ns",
-                    "detail": "Delete and recreate E2E test namespace",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiCyan",
                     "running": {
@@ -399,6 +399,7 @@
         },
         {
             "label": "Teardown E2E",
+            "detail": "Reverses Setup E2E; removes controllers, namespace, and KEDA",
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/teardown-e2e-setup.sh",
             "args": [
@@ -417,7 +418,6 @@
             "options": {
                 "statusbar": {
                     "label": "e2e teardown",
-                    "detail": "Teardown E2E test environment",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiYellow",
                     "hide": true
@@ -426,6 +426,7 @@
         },
         {
             "label": "Open OpenShift Console",
+            "detail": "Uses $BROWSER or defaults to brave-browser",
             "type": "shell",
             "command": "${BROWSER:-brave-browser} $(oc whoami --show-console)",
             "problemMatcher": [],
@@ -441,7 +442,6 @@
             "options": {
                 "statusbar": {
                     "label": "console",
-                    "detail": "Open OpenShift web console in browser",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiWhite"
                 }
@@ -449,6 +449,7 @@
         },
         {
             "label": "Fix ODH Dashboard Route (CRC)",
+            "detail": "Workaround for missing route in openshift-ingress",
             "type": "shell",
             "command": "oc create route passthrough data-science-gateway --service=data-science-gateway-data-science-gateway-class --port=443 --hostname=data-science-gateway.apps-crc.testing -n openshift-ingress",
             "problemMatcher": [],
@@ -464,7 +465,6 @@
             "options": {
                 "statusbar": {
                     "label": "fix route",
-                    "detail": "Create passthrough route for ODH dashboard on CRC",
                     "backgroundColor": "statusBarItem.errorBackground",
                     "color": "terminal.ansiYellow",
                     "hide": true, // I believe this has been fixed in the operator
@@ -476,6 +476,7 @@
         // ============================================================
         {
             "label": "Devspace Dev",
+            "detail": "Hot-reloads on code changes; syncs files to pod",
             "type": "shell",
             "command": "devspace",
             "args": [
@@ -510,7 +511,6 @@
                 "cwd": "${workspaceFolder}/.vscode",
                 "statusbar": {
                     "label": "devspace",
-                    "detail": "Start Devspace dev mode for live controller development",
                     "color": "terminal.ansiGreen",
                     "running": {
                         "color": "#006600"
@@ -519,7 +519,48 @@
             }
         },
         {
+            "label": "Devspace Debug",
+            "detail": "Use with 'Devspace' launch config; listens on :2345",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/scripts/devspace_relaunch.sh",
+            "args": [
+                "${input:kserveNamespace}",
+                "${input:devspaceKubecontext}"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "Attach your debugger|Listening for remote connections"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "bug",
+                "color": "terminal.ansiRed"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode",
+                "statusbar": {
+                    "label": "devspace dbg",
+                    "color": "terminal.ansiRed",
+                    "running": {
+                        "color": "#660000"
+                    }
+                }
+            }
+        },
+        {
             "label": "Create HF Token Secret + SA",
+            "detail": "Required for gated models; uses $HF_TOKEN env var",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/create-hf-secret.sh",
             "args": [
@@ -541,13 +582,13 @@
                 },
                 "statusbar": {
                     "label": "hf secret",
-                    "detail": "Create HuggingFace token secret and service account",
                     "color": "terminal.ansiMagenta"
                 }
             }
         },
         {
             "label": "Setup Dev Environment",
+            "detail": "Runs on folder open; creates .venv with test dependencies",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/setup-dev-env.sh",
             "args": [
@@ -569,7 +610,6 @@
             "options": {
                 "statusbar": {
                     "label": "setup py",
-                    "detail": "Setup Python virtual environment and install dependencies",
                     "color": "terminal.ansiBlue",
                     "running": {
                         "color": "terminal.ansiYellow"
@@ -580,6 +620,7 @@
         },
         {
             "label": "Watch Resource Status",
+            "detail": "Live stream with color-coded status transitions",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/watch-status.sh",
             "args": [
@@ -612,7 +653,6 @@
             "options": {
                 "statusbar": {
                     "label": "watch",
-                    "detail": "Watch Kubernetes resource status changes",
                     "color": "terminal.ansiCyan",
                     "running": {
                         "color": "#008B8B"
@@ -622,6 +662,7 @@
         },
         {
             "label": "Watch KServe Controller Logs",
+            "detail": "Streams all containers from controller deployment",
             "type": "shell",
             "command": "kubectl logs -f -n ${input:kserveNamespace} deployment/kserve-controller-manager --all-containers",
             "isBackground": true,
@@ -647,7 +688,6 @@
             "options": {
                 "statusbar": {
                     "label": "logs",
-                    "detail": "Watch KServe controller logs",
                     "color": "terminal.ansiYellow",
                     "running": {
                         "color": "#B8860B"
