@@ -515,7 +515,7 @@
                     "running": {
                         "color": "#006600"
                     },
-                    "hide": true // superceded by devspace debug - hide for now
+                    // "hide": true // superceded by devspace debug - hide for now
                 }
             }
         },

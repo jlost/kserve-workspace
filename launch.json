@@ -18,6 +18,21 @@
             ],
         },
         {
+            "name": "devspace (attach)",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 2345,
+            "host": "localhost",
+            "trace": "verbose",
+            "substitutePath": [
+                {
+                    "from": "${workspaceFolder}",
+                    "to": "/app",
+                }
+            ],
+        },
+        {
             "name": "Unit Test by Name",
             "type": "go",
             "request": "launch",
