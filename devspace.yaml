@@ -14,19 +14,11 @@ pipelines:
       ensure_pull_secrets --all
       build_images --all -t $(git describe --always)
       create_deployments --all
-  # debug pipeline removed - use: devspace dev -p debug
 
 images:
   app:
     image: quay.io/vedantm/kserve-controller:latest-0.0.1
     dockerfile: ./Containerfile
-
-# deployments:
-#   app:
-#     kubectl:
-#       manifests:
-#         - ../config/manager
-#       kustomize: true
 
 dev:
   app:
@@ -37,24 +29,35 @@ dev:
     devImage: quay.io/jostrandquay/kserve-dev:latest
     env:
       - name: GOCACHE
-        value: /tmp/.cache/go-build
+        value: /tmp/go-cache/build
       - name: GOMODCACHE
-        value: /tmp/.cache/go-mod
+        value: /tmp/go-cache/mod
       - name: GOFLAGS
         value: -buildvcs=false
-    persistPaths:
-      - path: /tmp/.cache
+    # No persistPaths - Go cache lives in container memory
+    # Survives dlv restarts, cleared on container restart (acceptable tradeoff)
     sync:
       - path: ../:/app
         excludePaths:
-          - bin/
+          # Large directories not needed for Go controller build
           - .git/
+          - .github/
+          - .cursor/
           - .devspace/
-          - vendor/
+          - .vscode/
+          - bin/
+          - charts/
+          - docs/
+          - install/
           - python/
+          - qpext/
+          - test/
+          - tools/
+          - vendor/
           - "*.out"
     terminal:
-      command: .vscode/scripts/devspace_start.sh
+      # Simple shell - dlv is started via kubectl exec from devspace_relaunch.sh
+      command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
     ssh:
       enabled: true
     ports:
@@ -76,20 +79,3 @@ dev:
       - op: replace
         path: spec.containers[0].securityContext.readOnlyRootFilesystem
         value: false
-
-commands:
-  debug:
-    description: "Start dev container with delve debugger auto-running on :2345"
-    command: devspace dev -p debug
-
-profiles:
-  - name: debug
-    patches:
-      - op: replace
-        path: dev.app.terminal.command
-        value: .vscode/scripts/devspace_debug.sh
-  # - name: go1.22
-  #   patches: # Use patches to modify the base configuration
-  #     - op: replace
-  #       path: dev.app.devImage
-  #       value: quay.io/vedantm/golang:1.22-odh-kserve-debug

@@ -2,6 +2,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "devspace",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 2345,
+            "host": "localhost",
+            "trace": "verbose",
+            "preLaunchTask": "Devspace Debug",
+            "substitutePath": [
+                {
+                    "from": "${workspaceFolder}",
+                    "to": "/app",
+                }
+            ],
+        },
+        {
             "name": "Unit Test by Name",
             "type": "go",
             "request": "launch",
@@ -39,22 +55,6 @@
                 "KUBEBUILDER_ASSETS": "${env:HOME}/.local/share/kubebuilder-envtest/k8s/1.34.1-linux-amd64"
             },
             "console": "integratedTerminal"
-        },
-        {
-            "name": "devspace",
-            "type": "go",
-            "request": "attach",
-            "mode": "remote",
-            "port": 2345,
-            "host": "localhost",
-            "trace": "verbose",
-            "preLaunchTask": "Devspace Debug",
-            "substitutePath": [
-                {
-                    "from": "${workspaceFolder}",
-                    "to": "/app",
-                }
-            ],
         },
         {
             "name": "E2E Test (ODH/RHOAI)",

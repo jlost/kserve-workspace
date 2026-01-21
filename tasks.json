@@ -505,7 +505,7 @@
             },
             "icon": {
                 "id": "coffee",
-                "color": "terminal.ansiGreen"
+                "color": "terminal.ansiGreen",
             },
             "options": {
                 "cwd": "${workspaceFolder}/.vscode",
@@ -514,13 +514,14 @@
                     "color": "terminal.ansiGreen",
                     "running": {
                         "color": "#006600"
-                    }
+                    },
+                    "hide": true // superceded by devspace debug - hide for now
                 }
             }
         },
         {
             "label": "Devspace Debug",
-            "detail": "Use with 'Devspace' launch config; listens on :2345",
+            "detail": "Idempotent: reuses existing devspace session, (re)starts dlv on :2345",
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/scripts/devspace_relaunch.sh",
             "args": [
@@ -535,7 +536,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": ".",
-                    "endsPattern": "Attach your debugger|Listening for remote connections"
+                    "endsPattern": "API server listening at"
                 }
             },
             "presentation": {
@@ -545,7 +546,7 @@
             },
             "icon": {
                 "id": "bug",
-                "color": "terminal.ansiRed"
+                "color": "terminal.ansiRed",
             },
             "options": {
                 "cwd": "${workspaceFolder}/.vscode",
@@ -554,7 +555,8 @@
                     "color": "terminal.ansiRed",
                     "running": {
                         "color": "#660000"
-                    }
+                    },
+                    "hide": true // auto executed by launch config - hide for now
                 }
             }
         },
