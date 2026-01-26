@@ -44,7 +44,6 @@ dev:
           - .github/
           - .cursor/
           - .devspace/
-          - .vscode/
           - bin/
           - charts/
           - docs/
@@ -79,3 +78,11 @@ dev:
       - op: replace
         path: spec.containers[0].securityContext.readOnlyRootFilesystem
         value: false
+
+profiles:
+  - name: interactive
+    description: "Start interactive shell with devspace_start.sh instead of sleep infinity"
+    patches:
+      - op: replace
+        path: dev.app.terminal.command
+        value: /app/.vscode/scripts/devspace_start.sh

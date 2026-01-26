@@ -1,7 +1,9 @@
 #!/bin/sh
+set -eu
+
 sudo echo "Authenticated!"
-crc stop
-echo "y" | crc delete
+crc stop || true
+echo "y" | crc delete || true
 crc cleanup
 crc setup
 crc start

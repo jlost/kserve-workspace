@@ -44,7 +44,10 @@
             "env": {
                 "KUBEBUILDER_ASSETS": "${env:HOME}/.local/share/kubebuilder-envtest/k8s/1.34.1-linux-amd64"
             },
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "mcp": {
+                "preserveConsole": true,
+            }
         },
         {
             "name": "Unit Test (Ginkgo Focus)",
@@ -58,7 +61,10 @@
             "env": {
                 "KUBEBUILDER_ASSETS": "${env:HOME}/.local/share/kubebuilder-envtest/k8s/1.34.1-linux-amd64"
             },
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "mcp": {
+                "preserveConsole": true,
+            }
         },
         {
             "name": "All Unit Tests (Package)",
@@ -69,7 +75,10 @@
             "env": {
                 "KUBEBUILDER_ASSETS": "${env:HOME}/.local/share/kubebuilder-envtest/k8s/1.34.1-linux-amd64"
             },
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "mcp": {
+                "preserveConsole": true,
+            }
         },
         {
             "name": "E2E Test (ODH/RHOAI)",
@@ -89,6 +98,7 @@
             ],
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
+                "CI_USE_ISVC_HOST": "1",
                 "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
@@ -136,6 +146,7 @@
             ],
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
+                "CI_USE_ISVC_HOST": "1",
                 "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
@@ -159,6 +170,7 @@
             ],
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
+                "CI_USE_ISVC_HOST": "1",
                 "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
@@ -232,6 +244,7 @@
             ],
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
+                "CI_USE_ISVC_HOST": "1",
                 "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",

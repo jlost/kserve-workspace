@@ -371,10 +371,7 @@
             "label": "Recreate E2E ns",
             "detail": "Clears test artifacts; uses marker-specific namespace",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh",
-            "args": [
-                "${input:marker}"
-            ],
+            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh ${input:marker} || ${workspaceFolder}/.vscode/scripts/refresh-e2e-ns-odh.sh",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -478,15 +475,7 @@
             "label": "Devspace Dev",
             "detail": "Hot-reloads on code changes; syncs files to pod",
             "type": "shell",
-            "command": "devspace",
-            "args": [
-                "dev",
-                "--namespace",
-                "${input:kserveNamespace}",
-                "--kube-context",
-                "${input:devspaceKubecontext}",
-                // "--silent"
-            ],
+            "command": "devspace dev --namespace ${input:kserveNamespace} --kube-context ${input:devspaceKubecontext} --profile interactive",
             "isBackground": true,
             "problemMatcher": {
                 "pattern": {
@@ -516,6 +505,9 @@
                         "color": "#006600"
                     },
                     // "hide": true // superceded by devspace debug - hide for now
+                },
+                "mcp": {
+                    "interactive": true
                 }
             }
         },
@@ -745,8 +737,8 @@
         {
             "id": "operatorVersion",
             "type": "promptString",
-            "description": "Operator version (leave empty for default: ODH 3.2.0, RHOAI 3.0.0). Use 2.x for v2 channels.",
-            "default": ""
+            "description": "Operator version e.g. 3.2.0, 3.0.0 (use 2.x for v2 channels)",
+            "default": "3.2.0"
         },
         {
             "id": "hfNamespace",
