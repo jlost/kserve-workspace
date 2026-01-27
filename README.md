@@ -22,9 +22,18 @@ A batteries-included development environment for KServe on OpenShift. Clone, ins
 
 ## 🛠️ Setup
 
-### 1. 📦 Clone Workspace Configuration
+### 1. 🍴 Fork and Clone KServe
 
-Clone this repository into your kserve repository at the root, named as `.vscode`:
+1. Fork [kserve/kserve](https://github.com/kserve/kserve) on GitHub
+2. Clone your fork:
+   ```sh
+   git clone git@github.com:$GITHUB_USER/kserve.git
+   cd kserve
+   ```
+
+### 2. 📦 Clone Workspace Configuration
+
+Clone this workspace configuration repository into your kserve repository at the root, named as `.vscode`:
 
 ```sh
 cd kserve
@@ -33,12 +42,12 @@ git clone git@github.com:jlost/kserve-workspace.git .vscode
 
 You should now have a `.vscode` directory at the root of the kserve repository.
 
-### 2. 🔀 Configure Git Remotes
+### 3. 🔀 Configure Git Remotes
 
 Set up remotes for the multi-fork hierarchy (upstream, midstream, downstream):
 
 ```sh
-# Add all remotes (assumes origin is your personal fork)
+# Add all remotes (origin is already your personal fork from step 1)
 git remote add upstream git@github.com:kserve/kserve.git
 git remote add odh git@github.com:opendatahub-io/kserve.git
 git remote add downstream git@github.com:red-hat-data-services/kserve.git
@@ -60,7 +69,7 @@ upstream    git@github.com:kserve/kserve.git (fetch)
 upstream    git@github.com:kserve/kserve.git (push)
 ```
 
-### 3. 🔨 Install Development Tools
+### 4. 🔨 Install Development Tools
 
 #### 🤖 Automated Setup (Fedora/MacOS Only)
 
@@ -122,7 +131,7 @@ For Fedora and MacOS users, automated setup scripts are available in `.vscode/`:
    BROWSER=firefox  # optional, defaults to brave-browser
    ```
 
-### 4. 🔐 Log in to Container Registries
+### 5. 🔐 Log in to Container Registries
 
 Use `podman login` to log in to docker and quay:
 
@@ -155,12 +164,11 @@ ln -s "$HOME/.config/containers/auth.json" ~/.docker/config.json
 **Note:** The symlink target must be an absolute path. Verify with `ls -la ~/.docker/config.json` - it should show the full path (e.g., `/home/user/.config/containers/auth.json`), not a relative path.
 
 
-### 5. 💻 Start VS Code and Install Extensions
+### 6. 💻 Start VS Code and Install Extensions
 
-Start VS Code:
+Start VS Code from the kserve directory:
 
 ```sh
-cd ../..
 code .
 ```
 
