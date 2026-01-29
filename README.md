@@ -87,6 +87,23 @@ For Fedora and MacOS users, automated setup scripts are available in `.vscode/`:
    ./.vscode/setup-env.sh
    ```
 
+#### 🍎 Mac ARM (Apple Silicon) Notes
+
+Building `linux/amd64` images on Mac ARM requires emulation. The default podman machine image may fail -- use this specific Fedora CoreOS image:
+
+```sh
+brew install podman
+podman machine init --disk-size 60 --rootful --cpus 4 --memory 8192 \
+  --image https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/40.20241019.3.0/aarch64/fedora-coreos-40.20241019.3.0-applehv.aarch64.raw.gz
+podman machine start
+```
+
+Always specify the platform when building: `podman build --platform linux/amd64 ...`
+
+**Notes:**
+- Emulated builds are slow -- consider a remote x86_64 machine or ROSA BuildConfig for faster iteration
+- If builds OOM, increase `--memory` when reinitializing the machine
+
 #### 📝 Manual Setup
 
 1. Install the required tools using your system's package manager or preferred installation method. All tools must be available in your `PATH` including for non-interactive shells (i.e. add bin dirs to `~/.zshenv`, `~/.bashrc`, or `~/.profile` depending on your shell).
