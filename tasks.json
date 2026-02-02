@@ -688,6 +688,28 @@
                     }
                 }
             }
+        },
+        {
+            "label": "JIRA Worktree",
+            "detail": "Creates git worktree with .vscode/.cursor symlinks and agent prompt",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/scripts/setup-worktree.sh --jira ${input:jiraKey} ${input:worktreeBaseBranch} ${input:worktreeOpenCursor}",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "close": false
+            },
+            "icon": {
+                "id": "issues",
+                "color": "terminal.ansiBlue"
+            },
+            "options": {
+                "statusbar": {
+                    "label": "jira",
+                    "color": "terminal.ansiBlue"
+                }
+            }
         }
     ],
     "inputs": [
@@ -873,6 +895,52 @@
                 }
             ],
             "default": "false"
+        },
+        {
+            "id": "jiraKey",
+            "type": "promptString",
+            "description": "JIRA key (e.g., RHOAIENG-1234 or KSERVE-123)",
+            "default": ""
+        },
+        {
+            "id": "worktreeBaseBranch",
+            "type": "pickString",
+            "description": "Base branch (auto-detects from JIRA key if empty)",
+            "options": [
+                {
+                    "label": "Auto-detect (RHOAIENG -> ODH, KSERVE -> upstream)",
+                    "value": ""
+                },
+                {
+                    "label": "ODH master",
+                    "value": "--base odh/master"
+                },
+                {
+                    "label": "Upstream master",
+                    "value": "--base upstream/master"
+                },
+                {
+                    "label": "Downstream main",
+                    "value": "--base downstream/main"
+                }
+            ],
+            "default": ""
+        },
+        {
+            "id": "worktreeOpenCursor",
+            "type": "pickString",
+            "description": "Open worktree in Cursor after setup?",
+            "options": [
+                {
+                    "label": "Yes (default for new worktrees)",
+                    "value": "--open"
+                },
+                {
+                    "label": "No",
+                    "value": "--no-open"
+                }
+            ],
+            "default": "--open"
         }
     ]
 }
