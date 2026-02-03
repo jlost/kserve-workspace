@@ -776,6 +776,7 @@
                 "deployments",
                 "pods",
                 "inferenceservices",
+                "llminferenceservices",
                 "services",
                 "replicasets",
                 "statefulsets"
