@@ -106,6 +106,15 @@ install_with_poetry() {
 setup_worktree_symlinks ".vscode"
 setup_worktree_symlinks ".cursor"
 
+# Setup envtest binaries for Go controller tests
+setup_envtest() {
+    echo "Setting up envtest binaries for controller tests..."
+    cd "$PROJECT_ROOT"
+    make setup-envtest
+}
+
+setup_envtest
+
 # Skip if venv exists (unless --force)
 if [[ -d "$VENV_DIR" && "$FORCE" == "false" ]]; then
     echo "Venv already exists at $VENV_DIR"
