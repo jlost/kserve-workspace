@@ -475,7 +475,7 @@
             "label": "Devspace Dev",
             "detail": "Hot-reloads on code changes; syncs files to pod",
             "type": "shell",
-            "command": "devspace dev --namespace ${input:kserveNamespace} --kube-context ${input:devspaceKubecontext} --profile interactive",
+            "command": "${workspaceFolder}/.vscode/scripts/devspace_dev.sh ${input:kserveNamespace} ${input:devspaceKubecontext} ${input:devspaceController}",
             "isBackground": true,
             "problemMatcher": {
                 "pattern": {
@@ -504,7 +504,6 @@
                     "running": {
                         "color": "#006600"
                     },
-                    // "hide": true // superceded by devspace debug - hide for now
                 },
                 "mcp": {
                     "interactive": true
@@ -518,7 +517,8 @@
             "command": "${workspaceFolder}/.vscode/scripts/devspace_relaunch.sh",
             "args": [
                 "${input:kserveNamespace}",
-                "${input:devspaceKubecontext}"
+                "${input:devspaceKubecontext}",
+                "${input:devspaceController}"
             ],
             "isBackground": true,
             "problemMatcher": {
@@ -731,6 +731,26 @@
             "default": "crc-admin"
         },
         {
+            "id": "devspaceController",
+            "type": "pickString",
+            "description": "Controller to debug",
+            "options": [
+                {
+                    "label": "kserve-controller-manager",
+                    "value": "kserve"
+                },
+                {
+                    "label": "llmisvc-controller-manager",
+                    "value": "llmisvc"
+                },
+                {
+                    "label": "localmodel-controller-manager",
+                    "value": "localmodel"
+                }
+            ],
+            "default": "kserve"
+        },
+        {
             "id": "marker",
             "type": "pickString",
             "description": "Pytest marker",
@@ -742,6 +762,7 @@
                 "batcher",
                 "explainer",
                 "transformer",
+                "raw",
                 ""
             ],
             "default": "predictor"

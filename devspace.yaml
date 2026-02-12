@@ -34,12 +34,9 @@ dev:
         value: /tmp/go-cache/mod
       - name: GOFLAGS
         value: -buildvcs=false
-    # No persistPaths - Go cache lives in container memory
-    # Survives dlv restarts, cleared on container restart (acceptable tradeoff)
     sync:
       - path: ../:/app
         excludePaths:
-          # Large directories not needed for Go controller build
           - .git/
           - .github/
           - .cursor/
@@ -55,7 +52,114 @@ dev:
           - vendor/
           - "*.out"
     terminal:
-      # Simple shell - dlv is started via kubectl exec from devspace_relaunch.sh
+      command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
+    ssh:
+      enabled: true
+    ports:
+      - port: "2345"
+    resources:
+      requests:
+        cpu: "1.5"
+        memory: 2Gi
+      limits:
+        cpu: "2.5"
+        memory: 4Gi
+    patches:
+      - op: replace
+        path: spec.securityContext.runAsNonRoot
+        value: false
+      - op: replace
+        path: spec.containers[0].securityContext.runAsNonRoot
+        value: false
+      - op: replace
+        path: spec.containers[0].securityContext.readOnlyRootFilesystem
+        value: false
+
+  llmisvc:
+    workingDir: /app
+    labelSelector:
+      control-plane: llmisvc-controller-manager
+    container: manager
+    devImage: quay.io/jostrandquay/kserve-dev:latest
+    env:
+      - name: GOCACHE
+        value: /tmp/go-cache/build
+      - name: GOMODCACHE
+        value: /tmp/go-cache/mod
+      - name: GOFLAGS
+        value: -buildvcs=false
+    sync:
+      - path: ../:/app
+        excludePaths:
+          - .git/
+          - .github/
+          - .cursor/
+          - .devspace/
+          - bin/
+          - charts/
+          - docs/
+          - install/
+          - python/
+          - qpext/
+          - test/
+          - tools/
+          - vendor/
+          - "*.out"
+    terminal:
+      command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
+    ssh:
+      enabled: true
+    ports:
+      - port: "2345"
+    resources:
+      requests:
+        cpu: "1.5"
+        memory: 2Gi
+      limits:
+        cpu: "2.5"
+        memory: 4Gi
+    patches:
+      - op: replace
+        path: spec.securityContext.runAsNonRoot
+        value: false
+      - op: replace
+        path: spec.containers[0].securityContext.runAsNonRoot
+        value: false
+      - op: replace
+        path: spec.containers[0].securityContext.readOnlyRootFilesystem
+        value: false
+
+  localmodel:
+    workingDir: /app
+    labelSelector:
+      control-plane: kserve-localmodel-controller-manager
+    container: manager
+    devImage: quay.io/jostrandquay/kserve-dev:latest
+    env:
+      - name: GOCACHE
+        value: /tmp/go-cache/build
+      - name: GOMODCACHE
+        value: /tmp/go-cache/mod
+      - name: GOFLAGS
+        value: -buildvcs=false
+    sync:
+      - path: ../:/app
+        excludePaths:
+          - .git/
+          - .github/
+          - .cursor/
+          - .devspace/
+          - bin/
+          - charts/
+          - docs/
+          - install/
+          - python/
+          - qpext/
+          - test/
+          - tools/
+          - vendor/
+          - "*.out"
+    terminal:
       command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
     ssh:
       enabled: true
@@ -86,3 +190,25 @@ profiles:
       - op: replace
         path: dev.app.terminal.command
         value: /app/.vscode/scripts/devspace_start.sh
+
+  - name: llmisvc
+    description: "Target llmisvc-controller-manager"
+    patches:
+      - op: replace
+        path: pipelines.dev.run
+        value: |-
+          run_dependencies --all
+          ensure_pull_secrets --all
+          create_deployments --all
+          start_dev llmisvc
+
+  - name: localmodel
+    description: "Target kserve-localmodel-controller-manager"
+    patches:
+      - op: replace
+        path: pipelines.dev.run
+        value: |-
+          run_dependencies --all
+          ensure_pull_secrets --all
+          create_deployments --all
+          start_dev localmodel

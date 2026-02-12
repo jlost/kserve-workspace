@@ -7,7 +7,32 @@ set -e
 
 NAMESPACE="${1:-opendatahub}"
 KUBECONTEXT="${2:-crc-admin}"
+CONTROLLER="${3:-kserve}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Map controller to label selector and cmd path
+case "$CONTROLLER" in
+    kserve)
+        LABEL_SELECTOR="control-plane=kserve-controller-manager"
+        CMD_PATH="cmd/manager"
+        DEVSPACE_PROFILE=""
+        ;;
+    llmisvc)
+        LABEL_SELECTOR="control-plane=llmisvc-controller-manager"
+        CMD_PATH="cmd/llmisvc"
+        DEVSPACE_PROFILE="--profile llmisvc"
+        ;;
+    localmodel)
+        LABEL_SELECTOR="control-plane=kserve-localmodel-controller-manager"
+        CMD_PATH="cmd/localmodel"
+        DEVSPACE_PROFILE="--profile localmodel"
+        ;;
+    *)
+        echo "Unknown controller: $CONTROLLER" >&2
+        echo "Valid options: kserve, llmisvc, localmodel" >&2
+        exit 1
+        ;;
+esac
 
 # Timeout for kubectl commands (prevents hanging when cluster is down)
 KUBECTL_TIMEOUT="10s"
@@ -36,7 +61,7 @@ get_devspace_pod() {
     # Only return pods that are Running (not Terminating/Pending)
     $TIMEOUT_CMD 15 kubectl get pods -n "$NAMESPACE" --context "$KUBECONTEXT" \
         --request-timeout="$KUBECTL_TIMEOUT" \
-        -l control-plane=kserve-controller-manager \
+        -l "$LABEL_SELECTOR" \
         --field-selector=status.phase=Running \
         -o jsonpath='{.items[0].metadata.name}' 2>/dev/null | grep -o '.*devspace.*' || true
 }
@@ -153,7 +178,8 @@ start_devspace() {
     # Start devspace in background
     # IMPORTANT: Redirect stdout/stderr to avoid blocking the subshell's $() capture
     # Devspace output goes to stderr so it's still visible
-    devspace dev --namespace "$NAMESPACE" --kube-context "$KUBECONTEXT" >&2 &
+    # shellcheck disable=SC2086
+    devspace dev --namespace "$NAMESPACE" --kube-context "$KUBECONTEXT" $DEVSPACE_PROFILE >&2 &
     DEVSPACE_PID=$!
     
     # Give devspace time to create/select its pod before we start looking
@@ -241,13 +267,13 @@ start_dlv() {
     # Always kill existing dlv first
     kill_existing_dlv "$pod"
     
-    echo -e "${COLOR_BLUE}Starting delve debugger on :2345...${COLOR_RESET}"
+    echo -e "${COLOR_BLUE}Starting delve debugger on :2345 for ${CONTROLLER}...${COLOR_RESET}"
     echo -e "${COLOR_YELLOW}Building and starting debugger (this may take 30-90 seconds)...${COLOR_RESET}"
     
     # Start dlv - this blocks until dlv exits
     # No timeout here since dlv is meant to run until debugger disconnects
     kubectl exec -n "$NAMESPACE" --context "$KUBECONTEXT" "$pod" -c manager -- \
-        /bin/sh -c 'cd /app/cmd/manager && exec dlv debug --listen=:2345 --headless --accept-multiclient --api-version=2 main.go --'
+        /bin/sh -c "cd /app/${CMD_PATH} && exec dlv debug --listen=:2345 --headless --accept-multiclient --api-version=2 main.go --"
 }
 
 # Main logic
