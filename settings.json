@@ -12,7 +12,8 @@
     "terminal.integrated.env.linux": {
         "VIRTUAL_ENV": "${workspaceFolder}/python/kserve/.venv",
         "PATH": "${workspaceFolder}/python/kserve/.venv/bin:${env:PATH}",
-        "KUBEBUILDER_ASSETS": "${workspaceFolder}/bin/k8s/1.34.1-linux-amd64"
+        "KUBEBUILDER_ASSETS": "${workspaceFolder}/bin/k8s/1.34.1-linux-amd64",
+        // "REQUESTS_CA_BUNDLE": "/tmp/ca.crt"
     },
     // Test discovery
     "python.testing.pytestEnabled": true,

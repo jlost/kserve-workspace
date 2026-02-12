@@ -99,7 +99,8 @@
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
                 "CI_USE_ISVC_HOST": "1",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}",
+                "REQUESTS_CA_BUNDLE": "/tmp/ca.crt"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
             "console": "integratedTerminal",
@@ -147,7 +148,8 @@
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
                 "CI_USE_ISVC_HOST": "1",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}",
+                "REQUESTS_CA_BUNDLE": "/tmp/ca.crt"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
             "console": "integratedTerminal",
@@ -164,6 +166,8 @@
                 "${input:marker}",
                 "--network-layer",
                 "${input:networkLayer}",
+                "-n",
+                "${input:parallelism}",
                 "-v",
                 "-s",
                 "--log-cli-level=INFO"
@@ -171,7 +175,8 @@
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
                 "CI_USE_ISVC_HOST": "1",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}",
+                "REQUESTS_CA_BUNDLE": "/tmp/ca.crt"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
             "console": "integratedTerminal",
@@ -214,6 +219,8 @@
                 "${input:marker}",
                 "--network-layer",
                 "istio",
+                "-n",
+                "${input:parallelism}",
                 "-v",
                 "-s",
                 "--log-cli-level=INFO"
@@ -245,7 +252,8 @@
             "cwd": "${workspaceFolder}/test/e2e",
             "env": {
                 "CI_USE_ISVC_HOST": "1",
-                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}"
+                "PYTHONPATH": "${workspaceFolder}/python/kserve:${env:PYTHONPATH}",
+                "REQUESTS_CA_BUNDLE": "/tmp/ca.crt"
             },
             "python": "${workspaceFolder}/python/kserve/.venv/bin/python",
             "console": "integratedTerminal",
@@ -277,6 +285,26 @@
         }
     ],
     "inputs": [
+        {
+            "id": "devspaceController",
+            "type": "pickString",
+            "description": "Controller to debug",
+            "options": [
+                {
+                    "label": "kserve-controller-manager",
+                    "value": "kserve"
+                },
+                {
+                    "label": "llmisvc-controller-manager",
+                    "value": "llmisvc"
+                },
+                {
+                    "label": "localmodel-controller-manager",
+                    "value": "localmodel"
+                }
+            ],
+            "default": "kserve"
+        },
         {
             "id": "goTestPackage",
             "type": "promptString",
@@ -319,6 +347,7 @@
                 "batcher",
                 "explainer",
                 "transformer",
+                "raw",
                 "",
             ],
             "default": "predictor"
@@ -334,6 +363,19 @@
                 "istio-gatewayapi"
             ],
             "default": "istio"
+        },
+        {
+            "id": "parallelism",
+            "type": "pickString",
+            "description": "Pytest parallelism (-n)",
+            "options": [
+                "1",
+                "2",
+                "4",
+                "8",
+                "auto"
+            ],
+            "default": "1"
         }
     ]
 }

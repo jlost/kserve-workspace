@@ -20,15 +20,13 @@ flowchart TB
         K2b["🌐 Install Network Dependencies<br/><i>Istio, Gateway API</i>"]
         K3["🚀 Clean Deploy KServe<br/><i>make undeploy-dev; make deploy-dev</i>"]
         K4["⚙️ Patch Deployment Mode<br/><i>Knative or Standard</i>"]
-        K5["🔄 Recreate E2E ns (upstream)<br/><i>kserve-ci-e2e-test</i>"]
-        K6["▶️ Setup E2E + Port Forward<br/><i>Create ns + port-forward 8080:80</i>"]
+        K5["▶️ Setup E2E + Port Forward<br/><i>Create ns + port-forward 8080:80</i>"]
         
         K1 --> K2
         K2 --> K2b
         K2b --> K3
         K3 --> K4
         K4 --> K5
-        K5 --> K6
     end
 
     %% ============================================================
@@ -50,8 +48,6 @@ flowchart TB
         end
         
         O7["🌐 Open Console<br/><i>OpenShift web console</i>"]
-        O8["🔌 Fix Dashboard Route<br/><i>CRC passthrough route</i>"]
-        O9["🗑️ Teardown E2E<br/><i>Clean up E2E setup</i>"]
         
         O1 --> O2
         O2 --> O3
@@ -59,8 +55,6 @@ flowchart TB
         O3 --> O4
         O5 --> O6
         O4 -.-> O7
-        O4 -.-> O8
-        O6 -.-> O9
     end
 
     %% ============================================================
@@ -69,10 +63,10 @@ flowchart TB
     subgraph dev["🟢 DEVELOPMENT TOOLS (Platform Agnostic)"]
         direction TB
         D1["☕ Devspace Dev<br/><i>Live controller development</i>"]
-        D2["🔐 Create HF Token Secret<br/><i>HuggingFace access</i>"]
-        D3["📦 Setup Dev Environment<br/><i>Python venv + deps</i>"]
-        D4["👁️ Watch Resource Status<br/><i>deployments, pods, isvc...</i>"]
-        D5["📋 Watch Controller Logs<br/><i>kserve-controller-manager</i>"]
+        D2["🔐 Create HF Token Secret + SA<br/><i>HuggingFace gated models</i>"]
+        D3["👁️ Watch Resource Status<br/><i>deployments, pods, isvc...</i>"]
+        D4["📋 Watch Controller Logs<br/><i>kserve-controller-manager</i>"]
+        D5["📋 JIRA Worktree<br/><i>Branch from JIRA key</i>"]
     end
 
     %% ============================================================
@@ -89,26 +83,24 @@ flowchart TB
     A -->|"Local Dev<br/>Upstream Testing"| K1
     A -->|"ODH/RHOAI<br/>OpenShift Testing"| O1
 
-    K6 --> G1
-    K6 --> G2
+    K5 --> G1
+    K5 --> G2
     O6 --> G1
     O6 --> G2
 
     %% Development tools connect to both paths
     K3 -.-> D1
-    K6 -.-> D4
-    K6 -.-> D5
-    K6 -.-> D2
+    K5 -.-> D3
+    K5 -.-> D4
+    K5 -.-> D2
     O4 -.-> D1
+    O6 -.-> D3
     O6 -.-> D4
-    O6 -.-> D5
     O6 -.-> D2
 
     D1 --> G3
+    D3 --> G3
     D4 --> G3
-    D5 --> G3
-
-    D3 -.->|"Auto on folder open"| G1
 
     %% Styling
     classDef kindStyle fill:#fff3cd,stroke:#ffc107,stroke-width:2px,color:#000
@@ -117,8 +109,8 @@ flowchart TB
     classDef goalStyle fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#000
     classDef startStyle fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#000
 
-    class K1,K2,K2b,K3,K4,K5,K6 kindStyle
-    class O1,O2,O3,O4,O5,O6,O7,O8,O9 ocpStyle
+    class K1,K2,K2b,K3,K4,K5 kindStyle
+    class O1,O2,O3,O4,O5,O6,O7 ocpStyle
     class D1,D2,D3,D4,D5 devStyle
     class G1,G2,G3 goalStyle
     class A startStyle
@@ -130,7 +122,7 @@ flowchart TB
 
 **Sequence:**
 ```
-Kind Refresh -> Install Dependencies -> Install Network -> Deploy KServe -> Patch Mode -> E2E ns -> Port Forward
+Kind Refresh -> Install Dependencies -> Install Network -> Deploy KServe -> Patch Mode -> Setup E2E + Port Forward
 ```
 
 **Use when:**
@@ -147,8 +139,7 @@ Kind Refresh -> Install Dependencies -> Install Network -> Deploy KServe -> Patc
 | Install Network Dependencies | `network` | Install Istio, Gateway API (Istio or Envoy) |
 | Clean Deploy KServe | `deploy` | `make undeploy-dev; make deploy-dev` with Gateway config |
 | Patch Deployment Mode | `mode` | Set Knative or Standard mode (auto-detects if not specified) |
-| Recreate E2E ns (upstream) | `e2e ns` | Create `kserve-ci-e2e-test` namespace |
-| Setup E2E + Port Forward | `e2e+fwd` | Create ns + port-forward to Istio gateway |
+| Setup E2E + Port Forward (Kind) | `e2e+fwd` | Create ns + port-forward to Istio gateway |
 
 **Deployment Mode Options:**
 
@@ -217,8 +208,6 @@ CRC Refresh -> Pull Secret -> [Choose Path]
 | Task | Statusbar Label | Description |
 |------|-----------------|-------------|
 | Open OpenShift Console | `console` | Open web console in browser |
-| Fix ODH Dashboard Route | `fix route` | Create passthrough route (CRC workaround) |
-| Teardown E2E | `e2e teardown` | Clean up E2E environment |
 
 ---
 
@@ -229,10 +218,10 @@ These tools work with both Kind and OpenShift clusters.
 | Task | Statusbar Label | Description |
 |------|-----------------|-------------|
 | Devspace Dev | `devspace` | Live controller development with hot reload |
-| Create HF Token Secret | `hf secret` | Create HuggingFace token for model access |
-| Setup Dev Environment | `setup py` | Python venv + dependencies (auto-runs on folder open) |
+| Create HF Token Secret + SA | `hf secret` | Create HuggingFace token and service account for gated models |
 | Watch Resource Status | `watch` | Monitor deployments, pods, ISVC status |
 | Watch KServe Controller Logs | `logs` | Stream kserve-controller-manager logs |
+| JIRA Worktree | `jira` | Create git worktree with branch from JIRA key |
 
 ---
 
@@ -240,59 +229,29 @@ These tools work with both Kind and OpenShift clusters.
 
 ### 🧪 Running E2E Tests
 
-**From Kind:**
-1. Complete Kind setup through "Setup E2E + Port Forward"
-2. Run pytest: `pytest test/e2e/ -m predictor`
+**Kind:** Complete setup through "Setup E2E + Port Forward (Kind)", then `pytest test/e2e/ -m <marker>`.
 
-**From OpenShift:**
-1. Complete E2E Tests Path: CRC Refresh -> Pull Secret -> Setup E2E -> Recreate E2E ns
-2. Run pytest: `pytest test/e2e/ -m predictor`
+**OpenShift:** CRC Refresh -> Pull Secret -> Setup E2E -> Recreate E2E ns, then `pytest test/e2e/ -m <marker>`.
 
-**Available Markers:**
-| Marker | Kind | OpenShift | Description |
-|--------|:----:|:---------:|-------------|
-| `predictor` | ✅ | ✅ | Basic predictor tests |
-| `kserve_on_openshift` | ❌ | ✅ | OpenShift-specific tests |
-| `graph` | ✅ | ✅ | Inference graph tests |
-| `path_based_routing` | ✅ | ✅ | Path-based routing tests |
-| `batcher` | ✅ | ✅ | Request batching tests |
-| `explainer` | ✅ | ✅ | Model explainer tests |
-| `transformer` | ✅ | ✅ | Transformer tests |
+Markers are defined in `test/e2e/pytest.ini`.
 
 ---
 
 ### 🔍 Manual Reproduction
 
-**Kind workflow:**
-1. Setup cluster and port forward
-2. Apply InferenceService: `kubectl apply -f my-isvc.yaml -n kserve-ci-e2e-test`
-3. Test via localhost: `curl localhost:8080/v1/models/my-model:predict -d @input.json`
-4. Watch logs and resources using dev tools
+**Kind:** After cluster + port forward, apply ISVC to `kserve-ci-e2e-test`, then `curl localhost:8080/v1/models/my-model:predict -d @input.json`. Use Watch Resource Status / Watch Controller Logs as needed.
 
-**OpenShift workflow:**
-1. Setup cluster with operator
-2. Apply InferenceService to test namespace
-3. Get route: `oc get routes -n <namespace>`
-4. Test via route URL
-5. Use OpenShift console for monitoring
+**OpenShift:** After operator + DSCI+DSC, apply ISVC, then `oc get routes -n <namespace>` and test via route URL; use "Open OpenShift Console" for monitoring.
 
 ---
 
 ### 🐛 Debugging
 
 **Live Development with Devspace:**
-1. Deploy KServe normally first
-2. Run "Devspace Dev" task
-3. Edit controller code - changes sync automatically
-4. Use "Watch Controller Logs" to see output
+1. Deploy KServe normally, then run "Devspace Dev" (`devspace`). Edit code; changes sync. Use "Watch Controller Logs" (`logs`) to see output.
+2. To attach a debugger, use the launch config in `launch.json`.
 
-**Log Analysis:**
-1. "Watch KServe Controller Logs" - stream live logs
-2. "Watch Resource Status" - monitor resource changes
-3. Check events: `kubectl get events -n <namespace> --sort-by='.lastTimestamp'`
-
-**Debug Launch Configurations:**
-See `launch.json` for debugger configurations targeting the controller.
+**Log Analysis:** "Watch KServe Controller Logs" and "Watch Resource Status"; check events: `kubectl get events -n <namespace> --sort-by='.lastTimestamp'`.
 
 ---
 
@@ -308,65 +267,13 @@ See `launch.json` for debugger configurations targeting the controller.
 
 ## Quick Start Cheatsheets
 
-### Kind: Zero to E2E Tests
-```bash
-# Via tasks (Ctrl+Shift+P -> Tasks: Run Task)
-1. Kind Refresh
-2. Install KServe Dependencies
-   - Deployment mode: Knative or Standard
-   - Install KEDA: No (or Yes for autoscaling with Standard)
-3. Install Network Dependencies
-   - Network layer: Istio (default), Istio+GatewayAPI, or Envoy+GatewayAPI
-4. Clean Deploy KServe
-   - Gateway network layer: Match your network layer selection (None/Istio/Envoy)
-5. Patch Deployment Mode
-6. Setup E2E + Port Forward
-7. pytest test/e2e/ -m predictor
-```
+**Kind (E2E):** Kind Refresh → Install KServe Dependencies (choose Knative/Standard, KEDA) → Install Network Dependencies (Istio / Istio+GatewayAPI / Envoy+GatewayAPI) → Clean Deploy KServe (gateway: None / Istio / Envoy to match) → Patch Deployment Mode → Setup E2E + Port Forward (Kind) → `pytest test/e2e/ -m predictor`.
 
-### Kind: Gateway API Setup (Raw Deployment)
-```bash
-# For testing with Envoy Gateway API (matches CI test-raw job)
-1. Kind Refresh
-2. Install KServe Dependencies
-   - Deployment mode: Standard (raw deployment)
-   - Install KEDA: No (or Yes for autoscaling)
-3. Install Network Dependencies
-   - Network layer: Envoy + Gateway API
-4. Clean Deploy KServe
-   - Gateway network layer: Envoy Gateway API
-5. Patch Deployment Mode (auto-detects Standard)
-6. Setup E2E + Port Forward
-7. pytest test/e2e/ -m raw
-```
+**Kind (Raw / Gateway API):** Same as above with Standard mode, Envoy + Gateway API, Envoy Gateway API for deploy; then `pytest test/e2e/ -m raw`.
 
-### OpenShift: Manual Repro
-```bash
-# Via tasks (Ctrl+Shift+P -> Tasks: Run Task)
-1. CRC Refresh
-2. Pull Secret
-3. Install ODH/RHOAI Operator
-4. Apply DSCI + DSC
-# Ready for manual testing - apply your ISVC, check routes, etc.
-```
+**OpenShift (Manual):** CRC Refresh → Pull Secret → Install ODH/RHOAI Operator → Apply DSCI + DSC. Then apply ISVC and use routes.
 
-### OpenShift: E2E Tests
-```bash
-# Via tasks (Ctrl+Shift+P -> Tasks: Run Task)
-1. CRC Refresh
-2. Pull Secret
-3. Setup E2E (select marker)
-4. Recreate E2E ns
-# Ready for pytest
-```
+**OpenShift (E2E):** CRC Refresh → Pull Secret → Setup E2E (select marker) → Recreate E2E ns → pytest.
 
-### Quick Controller Iteration
-```bash
-# After initial cluster setup (Kind Refresh + Dependencies + Network + Deploy)
-1. Make code changes
-2. Clean Deploy KServe (or Devspace Dev for hot reload)
-3. Watch Controller Logs
-4. Apply test resources
-5. Watch Resource Status
-```
+**Controller iteration:** After cluster is up: change code → Clean Deploy KServe or Devspace Dev → Watch Controller Logs + Watch Resource Status.
 
