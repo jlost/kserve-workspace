@@ -51,6 +51,7 @@ dev:
           - tools/
           - vendor/
           - "*.out"
+          - "__debug_bin*"
     terminal:
       command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
     ssh:
@@ -105,6 +106,7 @@ dev:
           - tools/
           - vendor/
           - "*.out"
+          - "__debug_bin*"
     terminal:
       command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
     ssh:
@@ -159,6 +161,7 @@ dev:
           - tools/
           - vendor/
           - "*.out"
+          - "__debug_bin*"
     terminal:
       command: /bin/sh -c "echo 'Devspace ready. dlv will be started externally.'; exec sleep infinity"
     ssh:

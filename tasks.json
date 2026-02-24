@@ -344,7 +344,9 @@
             "type": "shell",
             "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
             "args": [
-                "${input:marker}"
+                "${input:marker}",
+                "1",
+                "${input:deploymentProfile}"
             ],
             "problemMatcher": [],
             "presentation": {
@@ -763,6 +765,7 @@
                 "explainer",
                 "transformer",
                 "raw",
+                "llminferenceservice",
                 ""
             ],
             "default": "predictor"
@@ -947,6 +950,26 @@
                 }
             ],
             "default": ""
+        },
+        {
+            "id": "deploymentProfile",
+            "type": "pickString",
+            "description": "Deployment profile (raw, serverless, llm-d)",
+            "options": [
+                {
+                    "label": "raw (InferenceService, default)",
+                    "value": "raw"
+                },
+                {
+                    "label": "llm-d (LLMInferenceService + Kuadrant auth)",
+                    "value": "llm-d"
+                },
+                {
+                    "label": "serverless (Knative)",
+                    "value": "serverless"
+                }
+            ],
+            "default": "raw"
         },
         {
             "id": "worktreeOpenCursor",
