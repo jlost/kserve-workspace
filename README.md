@@ -228,6 +228,10 @@ Operators are still available and can be listed with `oc get packagemanifests` a
 
 Run the "Install Pull Secret" task to inject your docker and quay credentials.
 
+**Q: Tasks fail with `<ENV_VAR> not set` errors. What's wrong?**
+
+Make sure all variables from the [Required Environment Variables](#-required-environment-variables) list are defined, and make sure they are in `~/.zshenv`, **not** `~/.zshrc`. VS Code tasks run in non-interactive shells, which do not source `~/.zshrc`.
+
 ## 🤝 Contributions
 
 Contributions welcome! Fork and submit a pull request.

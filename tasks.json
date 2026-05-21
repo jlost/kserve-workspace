@@ -34,7 +34,7 @@
             "label": "Install KServe Dependencies",
             "detail": "Run after Kind Refresh; installs cert-manager and serving layer",
             "type": "shell",
-            "command": "${workspaceFolder}/hack/quick_install.sh -d ${input:deploymentMode} ${input:installKeda}",
+            "command": "${workspaceFolder}/hack/kserve-install.sh --deps-only ${input:deploymentMode} ${input:installKeda}",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -243,21 +243,10 @@
         },
         {
             "label": "Pull Secret",
-            "detail": "Enables pulling images from private registries",
+            "detail": "Global (CRC) or namespace-scoped (ROSA/HyperShift) pull secret",
             "type": "shell",
-            "command": "${workspaceFolder}/.vscode/scripts/pull_secret.sh",
-            "args": [],
-            "isBackground": false,
-            "problemMatcher": {
-                "pattern": {
-                    "regexp": "^$"
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": ".",
-                    "endsPattern": "^--- Success ---$"
-                }
-            },
+            "command": "${workspaceFolder}/.vscode/scripts/pull_secret.sh ${input:pullSecretMode}",
+            "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
                 "panel": "new",
@@ -280,74 +269,10 @@
             }
         },
         {
-            "label": "Install ODH/RHOAI Operator",
-            "detail": "Installs operator via subscription; run DSCI+DSC next",
-            "type": "shell",
-            "command": "${workspaceFolder}/.vscode/scripts/install-odh-operator.sh",
-            "args": [
-                "${input:operatorType}",
-                "${input:operatorVersion}"
-            ],
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "close": false
-            },
-            "icon": {
-                "id": "cloud-download",
-                "color": "terminal.ansiWhite"
-            },
-            "options": {
-                "statusbar": {
-                    "label": "operator",
-                    "backgroundColor": "statusBarItem.errorBackground",
-                    "color": "terminal.ansiWhite",
-                    "running": {
-                        "color": "terminal.ansiYellow"
-                    }
-                }
-            }
-        },
-        {
-            "label": "Apply DSCI + DSC",
-            "detail": "Triggers operator to deploy KServe and dependencies",
-            "type": "shell",
-            "command": "${workspaceFolder}/.vscode/scripts/apply-dsci-dsc.sh",
-            "args": [
-                "${input:enableKueue}"
-            ],
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "close": false
-            },
-            "icon": {
-                "id": "server-process",
-                "color": "terminal.ansiCyan"
-            },
-            "options": {
-                "statusbar": {
-                    "label": "dsci+dsc",
-                    "backgroundColor": "statusBarItem.errorBackground",
-                    "color": "terminal.ansiCyan",
-                    "running": {
-                        "color": "terminal.ansiYellow"
-                    }
-                }
-            }
-        },
-        {
             "label": "Setup E2E",
-            "detail": "Creates secrets, service accounts, and test fixtures",
+            "detail": "Full E2E setup: operator install, images, namespaces, fixtures",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-e2e-tests.sh",
-            "args": [
-                "${input:marker}",
-                "1",
-                "${input:deploymentProfile}"
-            ],
+            "command": "make deploy-e2e-ocp E2E_MARKER=${input:marker} OPERATOR_TYPE=${input:operatorMode} OPERATOR_VERSION=${input:operatorVersion} CATALOG_SOURCE=${input:catalogSource}",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -359,6 +284,12 @@
                 "color": "terminal.ansiWhite"
             },
             "options": {
+                "env": {
+                    "RUNNING_LOCAL": "true",
+                    "BUILD_KSERVE_IMAGES": "${input:buildKserveImages}",
+                    "BUILD_GRAPH_IMAGES": "${input:buildGraphImages}",
+                    "COPY_PR_MANIFESTS": "${input:copyPrManifests}"
+                },
                 "statusbar": {
                     "label": "e2e setup",
                     "backgroundColor": "statusBarItem.errorBackground",
@@ -371,9 +302,9 @@
         },
         {
             "label": "Recreate E2E ns",
-            "detail": "Clears test artifacts; uses marker-specific namespace",
+            "detail": "Clears test artifacts and recreates kserve-ci-e2e-test namespace",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/setup-ci-namespace.sh ${input:marker} || ${workspaceFolder}/.vscode/scripts/refresh-e2e-ns-odh.sh",
+            "command": "make reset-e2e-ocp",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -398,12 +329,9 @@
         },
         {
             "label": "Teardown E2E",
-            "detail": "Reverses Setup E2E; removes controllers, namespace, and KEDA",
+            "detail": "Reverses Setup E2E; removes operator, controllers, namespace, and KEDA",
             "type": "shell",
-            "command": "${workspaceFolder}/test/scripts/openshift-ci/teardown-e2e-setup.sh",
-            "args": [
-                "${input:marker}"
-            ],
+            "command": "make undeploy-ocp",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
@@ -418,8 +346,7 @@
                 "statusbar": {
                     "label": "e2e teardown",
                     "backgroundColor": "statusBarItem.errorBackground",
-                    "color": "terminal.ansiYellow",
-                    "hide": true
+                    "color": "terminal.ansiYellow"
                 }
             }
         },
@@ -771,26 +698,42 @@
             "default": "predictor"
         },
         {
-            "id": "operatorType",
+            "id": "operatorMode",
             "type": "pickString",
-            "description": "Select operator to install",
+            "description": "How to install KServe: via operator (ODH/RHOAI) or manual kustomize deploy",
             "options": [
-                "odh",
-                "rhods"
+                {
+                    "label": "ODH (community-operators)",
+                    "value": "odh"
+                },
+                {
+                    "label": "RHOAI (redhat-operators)",
+                    "value": "rhoai"
+                },
+                {
+                    "label": "None (manual kustomize deploy)",
+                    "value": ""
+                }
             ],
             "default": "odh"
         },
         {
             "id": "operatorVersion",
             "type": "promptString",
-            "description": "Operator version e.g. 3.2.0, 3.0.0 (use 2.x for v2 channels)",
-            "default": "3.2.0"
+            "description": "Operator version (e.g. 3.4.0). Press Enter for latest in channel.",
+            "default": " "
+        },
+        {
+            "id": "catalogSource",
+            "type": "promptString",
+            "description": "FBC fragment image or catalog name. Press Enter for default catalog. Example: quay.io/rhoai/rhoai-fbc-fragment:rhoai-3.4",
+            "default": " "
         },
         {
             "id": "hfNamespace",
             "type": "promptString",
-            "description": "Namespace for HuggingFace secret and service account (leave empty for current namespace)",
-            "default": ""
+            "description": "Namespace for HuggingFace secret and service account (press Enter for current namespace)",
+            "default": " "
         },
         {
             "id": "watchKind",
@@ -864,22 +807,6 @@
                 }
             ],
             "default": ""
-        },
-        {
-            "id": "enableKueue",
-            "type": "pickString",
-            "description": "Enable Kueue component in DSC?",
-            "options": [
-                {
-                    "label": "No",
-                    "value": "false"
-                },
-                {
-                    "label": "Yes",
-                    "value": "true"
-                }
-            ],
-            "default": "false"
         },
         {
             "id": "networkLayer",
@@ -986,6 +913,82 @@
                 }
             ],
             "default": "--open"
+        },
+        {
+            "id": "buildKserveImages",
+            "type": "pickString",
+            "description": "Build KServe images (controller, agent, router, storage-initializer) during setup?",
+            "options": [
+                {
+                    "label": "Yes (first setup or after code changes)",
+                    "value": "true"
+                },
+                {
+                    "label": "No (images already built)",
+                    "value": "false"
+                }
+            ],
+            "default": "true"
+        },
+        {
+            "id": "buildGraphImages",
+            "type": "pickString",
+            "description": "Build graph test images during setup? (only needed for graph marker)",
+            "options": [
+                {
+                    "label": "Yes",
+                    "value": "true"
+                },
+                {
+                    "label": "No",
+                    "value": "false"
+                }
+            ],
+            "default": "false"
+        },
+        {
+            "id": "copyPrManifests",
+            "type": "pickString",
+            "description": "Copy local branch manifests into operator PVC? (No = use operator's default images)",
+            "options": [
+                {
+                    "label": "Yes (test local changes)",
+                    "value": "true"
+                },
+                {
+                    "label": "No (use operator defaults)",
+                    "value": "false"
+                }
+            ],
+            "default": "true"
+        },
+        {
+            "id": "pullSecretMode",
+            "type": "pickString",
+            "description": "Pull secret scope: global (CRC) or namespace (ROSA/HyperShift)",
+            "options": [
+                {
+                    "label": "Global (CRC)",
+                    "value": "--global"
+                },
+                {
+                    "label": "Namespace: kserve (default SA)",
+                    "value": "--namespace kserve --service-account default"
+                },
+                {
+                    "label": "Namespace: opendatahub (default SA)",
+                    "value": "--namespace opendatahub --service-account default"
+                },
+                {
+                    "label": "Namespace: redhat-ods-applications (default SA)",
+                    "value": "--namespace redhat-ods-applications --service-account default"
+                },
+                {
+                    "label": "Namespace: kserve-ci-e2e-test (default + sa)",
+                    "value": "--namespace kserve-ci-e2e-test --service-account default --service-account sa"
+                }
+            ],
+            "default": "--global"
         }
     ]
 }
